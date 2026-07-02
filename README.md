@@ -3,3 +3,15 @@
 ---
 
 Zašto is an open source AI powered tool to help you analyze your disks easily ! 
+
+---
+
+# Infos and prerequisites
+
+The project is build with python 3.1x+ and probably later Rust, C++ or Go later to make browsing through disks faster
+The python part is used to communicate with the Openrouter API and for simplicity to make TUI stuff.
+
+## Prerequisites
+
+- Python 3.10 or above
+
