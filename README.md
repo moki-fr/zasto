@@ -1,6 +1,4 @@
-<img width="3440" height="1147" alt="Zašto" src="https://github.com/user-attachments/assets/06187736-b303-4e4e-a18b-f0b0bb9e187c" />
-
-v1.0 Alpha
+<img width="3440" height="1147" alt="Zašto" src="https://github.com/user-attachments/assets/28c3c25a-12eb-41ac-ba2e-7f127937b8d9" />
 
 ---
 
@@ -17,19 +15,4 @@ The python part is used to communicate with the Openrouter API and for simplicit
 ## Prerequisites
 
 - Python 3.10 or above
-- A Openrouter API Key (it's free)
 
-# How to use
-
-The main script is zasto.py, so to run it you have to run
-> python zasto.py [command]
-
-If no command is set, it will bring you to the help page.
-
-- --version: Shows you the version
-- --key **API_KEY**: Sets a temporary API key to the command
-- --key **API_KEY**: Sets a API key and stores it so you don't have to specify it again
-- --model **MODEL**: Sets a model (default is openai/gpt-4o, that one is free)
-- --ignorelist **FILE**: makes Zasto ignore part(s) of your disk (must link to a file which contains all pathes you don't want Zasto to look)
-- --path **PATH**: Exclusively scans a specific directory
-- --scan: start scanning
