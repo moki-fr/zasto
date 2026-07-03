@@ -19,7 +19,7 @@ The python part is used to communicate with the Openrouter API and for simplicit
 # How to use
 
 The main script is zasto.py, so to run it you have to run
-> python zasto.py <command>
+> python zasto.py [command]
 
 If no command is set, it will bring you to the help page.
 
