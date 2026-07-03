@@ -14,4 +14,12 @@ The python part is used to communicate with the Openrouter API and for simplicit
 ## Prerequisites
 
 - Python 3.10 or above
+- A Openrouter API Key (it's free)
+
+# How to use
+
+The main script is zasto.py, so to run it you have to run
+> python zasto.py <command>
+
+If no command is set, it will bring you to the help page.
 
