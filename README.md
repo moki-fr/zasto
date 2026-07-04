@@ -19,7 +19,7 @@ And Zašto means "why" btw
 ## Prerequisites
 
 - Python 3.10 or above
-- A Openrouter API Key (it's free)
+- A Openrouter API Key (it's free and easy to get)
 
 # How to use
 
