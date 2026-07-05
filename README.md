@@ -21,6 +21,8 @@ And Zašto means "why" btw
 - Python 3.10 or above
 - A Openrouter API Key (it's free and easy to get)
 
+> [Click here to get your free API key](HOWDOIGETMYAPIKEY.md)
+
 # How to use
 
 The main script is zasto.py, so to run it you have to run
