@@ -12,5 +12,8 @@ The steps should bring you to the creation of your API key easily, but if you're
 
 On the top bar go to "Home", then on the right bar go to API Keys then create your new key.
 
+<img width="1669" height="981" alt="image" src="https://github.com/user-attachments/assets/97d4c6c4-0fe1-48ab-b564-1ca5f598a426" />
+
+
 Just give it a name. The API key should start with `sk-`.
 So just copy it and provide it to Zasto by using `zasto.py --key [key]` (or --storekey if you want it to remember your eky)
