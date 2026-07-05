@@ -13,12 +13,6 @@ from pathlib import Path # Create config files
 ## CONSTS ## 
 ############
 
-DEBUG = True
-
-def debugPrint(text): # Debugs if needed
-    if DEBUG: print(text)
-
-
 # Logo to load only if Zasto is executed without any args
 LOGO = r""" 
 $$$$$$$$\                      $$\               
