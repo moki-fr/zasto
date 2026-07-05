@@ -26,7 +26,8 @@ And Zašto means "why" btw
 The main script is zasto.py, so to run it you have to run
 
 ```bash
-python zasto.py [command]```
+python zasto.py [command]
+```
 
 If no command is set, it will bring you to the help page.
 
