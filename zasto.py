@@ -157,20 +157,38 @@ if args.ignorelist != None:
         
         for line in lines: # Strip line by line
             ignoreList.append(line) # Adds every line of file into the list
+        
+        ignoreListStr = args.ignorelist # String to show in overview page when --scan is provided, this will show the path of ignorelist
+
         print("Set ignorelist")
         
-        if len(sys.argv) == 3:
+        if len(sys.argv) == 3: # Warns user in case the command is being used alone
             print("Warning: It looks like you're using this command with no other option, ignore list is not stored in config files.")
 
     except:
         print("Error occured while trying to import ignorelist, file might not exists")
         sys.exit(1)
-    
+
+else:
+    ignoreListStr = "Not set" # String to show in overview page when --scan is provided
+
 
 # Sets path to scan
 if args.path != None:
-    print("Feature not supported yet")
+    if os.path.exists(args.path): # Checks if path exist
+        focusedPath = args.path
 
+        pathStr = args.path # String to show in overview page when --scan is provided, this will show the focused path
+        print("Focused path set")
+
+        if len(sys.argv) == 3: # Warns user in case the command is being used alone
+            print("Warning: It looks like you're using this command with no other option, focused path is not stored in config files.")
+
+    else:
+        print("Path does not exist")
+
+else: 
+    pathStr = "Not set" # String to show in overview page when --scan is provided
 
 # Start scanning
 if args.scan: # BOOL
@@ -184,8 +202,8 @@ if args.scan: # BOOL
     print("Quick overview:")
     print(f"- API Key: {key}")
     print(f"- Model: {model}")
-    print(f"- Ignorelist: unavaible")
-    print(f"- Path: unavaible")
+    print(f"- Ignorelist: {ignoreListStr}")
+    print(f"- Path: {pathStr}")
     
     print(" ")
 
