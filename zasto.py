@@ -43,7 +43,7 @@ ZASTO_DIR = Path(HOME_DIR) / ".zasto"
 CLEAR_COMMAND = {"win": "cls", "lnx": "clear"}
 
 ##################
-## OS DETECTION ## 
+## OS DETECTION ##
 ##################
 
 if sys.platform == "win32":

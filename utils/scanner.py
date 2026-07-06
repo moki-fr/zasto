@@ -1,39 +1,44 @@
-####################
-## Scanner script ##
-####################
+#################
+## SCANNER LIB ##
+#################
 
-
-# Imports
+# IMPORTS
 from pathlib import Path
 import os
 
+# FUNCTIONS
 
-# Const
-StartMessage = "Initializing the scan..."
-WhileSCaning = "Currently scanning: "
-FinishScanning = "The scan has finish"
+# Main scanning function
+def scan(ignoreList: str = None, focusedPath: str = None, listPathNumber: int = 100):
 
+    # ignoreList (list) is for ignoring some paths (default is None)
+    # focusedPath (str) is for searching in a specified path (default is None)
+    # listPathNumber (int) is the number of paths that will be given to the ai 
 
-# var
-ScannerStart = Path("") #The Path where the scanner start
-IgnoreList = [] #Paths where the script wont look 
-HowMuchFile = 100 #Limites the number of file inside the TopFIle
-TopFiles = [] #Contains the biggest files in size with there path to be send to the AI, limited to how much the var "HowMuchFile" is set to, default = 0
-SkipExtention = [] #Extention with this extention will be skiped
+    if not startPath:
+        startPath = "/" # Sets focused path to root if not provided
 
-#Change Var value to the corrects one
-def ChangeVarValue():
+    
+    items = [] # list for ALL FILES and their size
 
-    return None
-
-#Main scanning function
-LeastFile = "" #The file with the least size inside the TopFiles list, required for the MainScanningFunction
-def MainScanningFunction():
-    for file in ScannerStart.glob("*"):
-        print(WhileSCaning, file._raw_path)
-        if file.is_file:    #Check if it is a file
-            for Ignore in IgnoreList:   #Check if it's not in a folder of the IgnoreList
-                if not file.is_relative_to(Ignore): #Check if the file isnt in a IgnoreList path
-
-
+    for root, dirs, files in os.walk(startPath): # Scans all the provided path 
+        for file in files: # Loops all files because each file isn't represented as a path but another type, so we have to make them links
+            filepath = os.path.join(root, file) # Creates the path via the file, and uses root to sort of "connect them" root <--path--> file
             
+            # Verifies if path is included in ignoreList
+            if ignoreList and any(ignore in filepath for ignore in ignoreList):
+                continue
+            
+            
+            try: # Try statement if some shii happens like permission errors
+                size = os.path.getsize(filepath)
+                items.append((filepath, size))
+
+            except:
+                pass
+    
+    # Sorts all file and reverse them so it's from highest to lowest
+    items.sort(key=lambda x: x[1], reverse=True)
+    
+    
+    return items[:listPathNumber] # only gets the firsts
