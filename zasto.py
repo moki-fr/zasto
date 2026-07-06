@@ -36,9 +36,15 @@ Commands:
  • scan <dontask *optional*> (tip: scan command asks to whether to start or not the scan, you can specify if you don't want confirmation)
 """
 
+DEBUG = True
+def debugPrint(text):
+    if DEBUG: print(text)
+
 VERISON = "v1.0 Alpha"
 HOME_DIR =os.path.expanduser("~").replace("\\", "/") # Simplify \ to /
 ZASTO_DIR = Path(HOME_DIR) / ".zasto"
+
+
 
 CLEAR_COMMAND = {"win": "cls", "lnx": "clear"}
 
@@ -52,9 +58,6 @@ elif sys.platform == "linux":
     OS = "lnx"
 else:
     print("OS not supported, sorry :/")
-
-print(os.path.expanduser("~"))
-
 
 
 ##########################
@@ -88,12 +91,14 @@ parser = argparse.ArgumentParser(description="Zašto? - An intelligent disk anal
 parser.add_argument("--version", action="store_true", help=f"Shows you that the version is {VERISON} ;)")
 parser.add_argument("--key", metavar="API_KEY", help="Sets an OpenRouter API key")
 parser.add_argument("--storekey", metavar="API_KEY", help="Sets AND stores an OpenRouter API key (at ~/.Zasto/key)")
-parser.add_argument("--model", default="openai/gpt-4o", help="Sets a model to use and stores it (e.g. openai/gpt-4o) and stores it at ~/.Zasto/model")
+parser.add_argument("--model", help="Sets a model to use and stores it (e.g. openai/gpt-4o) and stores it at ~/.Zasto/model")
 parser.add_argument("--ignorelist", metavar="FILE", help="Path to the file that contains every paths that should not be verified")
-parser.add_argument("--path", default="/", help="Recursively scans only one directory (default is root)")
+parser.add_argument("--path", help="Recursively scans only one directory (default is root)")
 parser.add_argument("--scan", action="store_true")
 
+
 args = parser.parse_args()
+
 
 # If no args are provided then show the help menu and da beautiful logo
 if len(sys.argv) == 1:
@@ -102,12 +107,14 @@ if len(sys.argv) == 1:
     parser.print_help()
     sys.exit(0)
 
+
 # Da version
-if args.version:
+if args.version: # BOOL, false by default
     print(f"Version: {VERISON}")
 
+
 # If storekey is provided
-if args.storekey != None:
+if args.storekey != None: # parser.get_default("model") is necessary because it's never False or None
 
     if args.storekey == "reset":
         key = ""
@@ -120,12 +127,15 @@ if args.storekey != None:
     with open(f"{ZASTO_DIR}/key", "w") as f:
         f.write(f"{key}")
 
+
 # Reads key in config BEFORE getting the key from the command so it doesn't overwrite the key in the command
 key = open(f"{ZASTO_DIR}/key", "r").read()
+
 
 # Gets key from command
 if args.key != None:
    key = args.key
+
 
 # Gets model
 if args.model != None:
@@ -136,16 +146,34 @@ if args.model != None:
 # Gets model from config file
 model = open(f"{ZASTO_DIR}/model", "r").read()
 
+
 # Gets ignorelist
 if args.ignorelist != None:
-    print("Feature not supported yet")
+    ignoreList = []
+    try: # Try statement to avoid errors
+        
+        with open(args.ignorelist, "r") as f: # Open ignorelist file 
+            lines = f.readlines()
+        
+        for line in lines: # Strip line by line
+            ignoreList.append(line) # Adds every line of file into the list
+        print("Set ignorelist")
+        
+        if len(sys.argv) == 3:
+            print("Warning: It looks like you're using this command with no other option, ignore list is not stored in config files.")
+
+    except:
+        print("Error occured while trying to import ignorelist, file might not exists")
+        sys.exit(1)
+    
 
 # Sets path to scan
 if args.path != None:
     print("Feature not supported yet")
 
+
 # Start scanning
-if args.scan != None:
+if args.scan: # BOOL
     os.system(CLEAR_COMMAND[OS]) # Clears the shell whether the machine is on Win or Lnx
     print(LOGO)
 
@@ -161,9 +189,8 @@ if args.scan != None:
     
     print(" ")
 
+
     # Asks before scanning
     if input("Are you sure to process scan with all these options ? (y/N)").lower() != "y": 
         print("Aborted.")
         sys.exit(0)
-
-    
