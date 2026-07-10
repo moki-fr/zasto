@@ -15,13 +15,13 @@ def scan(ignoreList: str = None, focusedPath: str = None, listPathNumber: int = 
     # focusedPath (str) is for searching in a specified path (default is None)
     # listPathNumber (int) is the number of paths that will be given to the ai 
 
-    if not startPath:
-        startPath = "/" # Sets focused path to root if not provided
+    if not focusedPath:
+        focusedPath = "/" # Sets focused path to root if not provided
 
     
     items = [] # list for ALL FILES and their size
 
-    for root, dirs, files in os.walk(startPath): # Scans all the provided path 
+    for root, dirs, files in os.walk(focusedPath): # Scans all the provided path 
         for file in files: # Loops all files because each file isn't represented as a path but another type, so we have to make them links
             filepath = os.path.join(root, file) # Creates the path via the file, and uses root to sort of "connect them" root <--path--> file
             
