@@ -8,6 +8,10 @@ import argparse # Parse command args
 import sys # Detect OS and exit
 import os # Set home directory 
 from pathlib import Path # Create config files
+import questionary # Create questionnaries, for selecting which file to delete
+
+
+from utils import scanner, ai # Our libs for scanning and analyzing
 
 ############
 ## CONSTS ## 
@@ -94,6 +98,7 @@ parser.add_argument("--storekey", metavar="API_KEY", help="Sets AND stores an Op
 parser.add_argument("--model", help="Sets a model to use and stores it (e.g. openai/gpt-4o) and stores it at ~/.Zasto/model")
 parser.add_argument("--ignorelist", metavar="FILE", help="Path to the file that contains every paths that should not be verified")
 parser.add_argument("--path", help="Recursively scans only one directory (default is root)")
+parser.add_argument("--filelist", help="Defines how many file are gonna be in the file list that's gonna be transfered to the ai")
 parser.add_argument("--scan", action="store_true")
 
 
@@ -122,7 +127,7 @@ if args.storekey != None: # parser.get_default("model") is necessary because it'
 
     else:
         key = args.storekey
-        print(f"Stored key {args.storekey[0:10]}*****")
+        print(f"Stored key {args.storekey[0:15]}*****")
 
     with open(f"{ZASTO_DIR}/key", "w") as f:
         f.write(f"{key}")
@@ -145,6 +150,8 @@ if args.model != None:
     print("If you want set it back to the default, set it to openai/gpt-4o (free)")
 # Gets model from config file
 model = open(f"{ZASTO_DIR}/model", "r").read()
+
+
 
 
 # Gets ignorelist
@@ -170,15 +177,16 @@ if args.ignorelist != None:
         sys.exit(1)
 
 else:
+    ignorelist = [] # Create empty ignorelist
     ignoreListStr = "Not set" # String to show in overview page when --scan is provided
 
 
+focusedPath = "/"
 # Sets path to scan
 if args.path != None:
     if os.path.exists(args.path): # Checks if path exist
         focusedPath = args.path
 
-        pathStr = args.path # String to show in overview page when --scan is provided, this will show the focused path
         print("Focused path set")
 
         if len(sys.argv) == 3: # Warns user in case the command is being used alone
@@ -187,8 +195,13 @@ if args.path != None:
     else:
         print("Path does not exist")
 
-else: 
-    pathStr = "Not set" # String to show in overview page when --scan is provided
+# Gets filelist number
+if args.filelist != 100: 
+
+    filelist = args.filelist
+
+    print("Filelist number set")
+
 
 # Start scanning
 if args.scan: # BOOL
@@ -200,15 +213,38 @@ if args.scan: # BOOL
     print("Now beginning scan")
     print(" ")
     print("Quick overview:")
-    print(f"- API Key: {key}")
+    print(f"- API Key: {key[:15]}*****")
     print(f"- Model: {model}")
     print(f"- Ignorelist: {ignoreListStr}")
-    print(f"- Path: {pathStr}")
+    print(f"- Path: {focusedPath}")
+    print(f"- File list number: {filelist}")
     
     print(" ")
 
 
     # Asks before scanning
-    if input("Are you sure to process scan with all these options ? (y/N)").lower() != "y": 
+    if input("Are you sure to process scan with all these options ? (y/N) ").lower() != "y": 
         print("Aborted.")
         sys.exit(0)
+
+    # Scans
+    fileScan = scanner.scan(focusedPath=focusedPath, listPathNumber=filelist)
+
+
+    
+    # Contacts AI
+    aiReply = ai.ai(api_key=key, model=model, systemPrompt=open("./utils/prompt/systemprompt.txt", "r").read(), userPrompt=fileScan)
+
+
+
+    
+    pathAndComments = aiReply.split("|") # Sets a list where each item is a group of path & comment: ["/home/user/file@Big file"]
+    
+    pathOnly = []
+
+    for i in pathAndComments:
+        pathOnly.append(i.split("@"))
+
+"""
+    questionary.checkbox(
+    "Select Files to delete", choices=pathOnly).ask()"""
