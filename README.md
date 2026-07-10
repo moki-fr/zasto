@@ -27,17 +27,26 @@ And Zašto means "why" btw
 
 The main script is zasto.py, so to run it you have to run
 
-```bash
+```
 python zasto.py [command]
 ```
 
 If no command is set, it will bring you to the help page.
 
-- --version: Shows you the version
-- --key **API_KEY**: Sets a temporary API key to the command
-- --key **API_KEY**: Sets a API key and stores it so you don't have to specify it again
-- --model **MODEL**: Sets a model (default is openai/gpt-4o, that one is free)
-- --ignorelist **FILE**: makes Zašto ignore part(s) of your disk (must link to a file which contains all pathes you don't want Zasto to look)
-- --path **PATH**: Exclusively scans a specific directory
-- --scan: start scanning
+| Command | Argument | Description |
+|-----------|-----------|-----------|
+| `--version`   | None    | Shows you the version    |
+| `--key`   | OR API key    | Sets a OpenRouter API key, only for this command    |
+| `--storekey` | OR API key | Sets a OpenRouter API key, and stores it in config files |
+| `--model` | OR AI model | Sets a AI model in config files (default is openai/gpt-4o) |
+| `--ignorelist` | File path | Sets a list where the scanning script won't check, only for this command |
+| `--path` | Directory path | Sets a path where you want the script to check, only for this command |
+| `--filelist` | Number (int) | Sets the number of file that will be given to the AI |
+| `--scan` | None | Starts scanning |
 
+
+If you're too lazy to understand all this, you can just run this command:
+
+```
+python ./zasto.py --key <API_KEY_HERE> --model openai/gpt-4o --scan
+```
