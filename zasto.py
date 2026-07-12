@@ -10,7 +10,6 @@ import os # Set home directory
 from pathlib import Path # Create config files
 import questionary # Create questionnaries, for selecting which file to delete
 
-
 from utils import scanner, ai # Our libs for scanning and analyzing
 
 ############
@@ -58,7 +57,7 @@ DEBUG = True
 def debugPrint(text):
     if DEBUG: print(text)
 
-VERISON = "v1.0 Alpha"
+VERISON = "v1.0"
 HOME_DIR =os.path.expanduser("~").replace("\\", "/") # Simplify \ to /
 ZASTO_DIR = Path(HOME_DIR) / ".zasto"
 
@@ -253,7 +252,7 @@ if args.scan: # BOOL
     print("Scan successful")
 
     print("Contacting AI...")
-    aiReply = ai.ai(api_key=key, model=model, systemPrompt=open("./utils/prompt/systemprompt.txt", "r").read(), userPrompt=fileScan)
+    aiReply = ai.ai(api_key=key, model=model, userPrompt=fileScan)
 
 
 
