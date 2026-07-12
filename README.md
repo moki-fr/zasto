@@ -38,7 +38,7 @@ If no command is set, it will bring you to the help page.
 | `--version`   | None    | Shows you the version    |
 | `--key`   | OR API key    | Sets a OpenRouter API key, only for this command    |
 | `--storekey` | OR API key | Sets a OpenRouter API key, and stores it in config files |
-| `--model` | OR AI model | Sets a AI model in config files (default is openai/gpt-4o) |
+| `--model` | OR AI model | Sets a AI model in config files (default is google/gemma-4-26b-a4b-it) |
 | `--ignorelist` | File path | Sets a list where the scanning script won't check, only for this command |
 | `--path` | Directory path | Sets a path where you want the script to check, only for this command |
 | `--filelist` | Number (int) | Sets the number of file that will be given to the AI |
@@ -48,5 +48,5 @@ If no command is set, it will bring you to the help page.
 If you're too lazy to understand all this, you can just run this command:
 
 ```
-python ./zasto.py --key <API_KEY_HERE> --model openai/gpt-4o --scan
+python ./zasto.py --storekey <API_KEY_HERE> --model google/gemma-4-26b-a4b-it --scan
 ```

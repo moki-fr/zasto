@@ -36,8 +36,22 @@ HELP_PAGE = r"""Help page
 Commands:
  • help 
  • key <OpenRouter API key>
- • model <AI Model> (tip: you can reset the model with "reset" option, which sets it to "openai/gpt-4o")
+ • model <AI Model> (tip: you can reset the model with "reset" option, which sets it to "google/gemma-4-26b-a4b-it")
  • scan <dontask *optional*> (tip: scan command asks to whether to start or not the scan, you can specify if you don't want confirmation)
+"""
+
+# https://texteditor.com/multiline-text-art/ 
+# Great website <3
+
+
+SCAN_COMPLETE = """
+ ▄▀▀ ▄▀▀ ▄▀▄ █▄ █   ▄▀▀ ▄▀▄ █▄ ▄█ █▀▄ █   ██▀ ▀█▀ ██▀
+ ▄██ ▀▄▄ █▀█ █ ▀█   ▀▄▄ ▀▄▀ █ ▀ █ █▀  █▄▄ █▄▄  █  █▄▄""" 
+
+
+THANKS = """
+ ▀█▀ █▄█ ▄▀▄ █▄ █ █▄▀   ▀▄▀ ▄▀▄ █ █
+  █  █ █ █▀█ █ ▀█ █ █    █  ▀▄▀ ▀▄█
 """
 
 DEBUG = True
@@ -82,7 +96,7 @@ if not KEY_FILE.exists():
 if not MODEL_FILE.exists():
     MODEL_FILE.touch()
     with open(f"{ZASTO_DIR}/key", "w") as f:
-        f.write("openai/gpt-4o")
+        f.write("google/gemma-4-26b-a4b-it")
 
 KEY = None
 
@@ -95,10 +109,10 @@ parser = argparse.ArgumentParser(description="Zašto? - An intelligent disk anal
 parser.add_argument("--version", action="store_true", help=f"Shows you that the version is {VERISON} ;)")
 parser.add_argument("--key", metavar="API_KEY", help="Sets an OpenRouter API key")
 parser.add_argument("--storekey", metavar="API_KEY", help="Sets AND stores an OpenRouter API key (at ~/.Zasto/key)")
-parser.add_argument("--model", help="Sets a model to use and stores it (e.g. openai/gpt-4o) and stores it at ~/.Zasto/model")
+parser.add_argument("--model", help="Sets a model to use and stores it (e.g. google/gemma-4-26b-a4b-it) and stores it at ~/.Zasto/model")
 parser.add_argument("--ignorelist", metavar="FILE", help="Path to the file that contains every paths that should not be verified")
 parser.add_argument("--path", help="Recursively scans only one directory (default is root)")
-parser.add_argument("--filelist", help="Defines how many file are gonna be in the file list that's gonna be transfered to the ai")
+parser.add_argument("--filelist", default=100, help="Defines how many file are gonna be in the file list that's gonna be transfered to the ai")
 parser.add_argument("--scan", action="store_true")
 
 
@@ -147,7 +161,7 @@ if args.model != None:
     with open(f"{ZASTO_DIR}/model", "w") as f:
         f.write(f"{args.model}")
     print(f"Set model {args.model} to config")
-    print("If you want set it back to the default, set it to openai/gpt-4o (free)")
+    print("If you want set it back to the default, set it to google/gemma-4-26b-a4b-it (free)")
 # Gets model from config file
 model = open(f"{ZASTO_DIR}/model", "r").read()
 
@@ -195,6 +209,8 @@ if args.path != None:
     else:
         print("Path does not exist")
 
+
+filelist = 100
 # Gets filelist number
 if args.filelist != 100: 
 
@@ -229,22 +245,62 @@ if args.scan: # BOOL
 
     # Scans
     fileScan = scanner.scan(focusedPath=focusedPath, listPathNumber=filelist)
-
-
     
-    # Contacts AI
+    if fileScan == None:
+        print("File scan returns 'None' for some reason wth") 
+        sys.exit(1)
+
+    print("Scan successful")
+
+    print("Contacting AI...")
     aiReply = ai.ai(api_key=key, model=model, systemPrompt=open("./utils/prompt/systemprompt.txt", "r").read(), userPrompt=fileScan)
 
 
 
     
-    pathAndComments = aiReply.split("|") # Sets a list where each item is a group of path & comment: ["/home/user/file@Big file"]
+    topFiles = aiReply.split("|") # Sets a list where each item is a group of path & comment: ["/home/user/file@Big file"]
     
-    pathOnly = []
 
-    for i in pathAndComments:
-        pathOnly.append(i.split("@"))
+    choicesToSelect = [] # Choices to select i guess...
 
-"""
-    questionary.checkbox(
-    "Select Files to delete", choices=pathOnly).ask()"""
+    for file in topFiles: # Loops all the top files 
+        path, comment, size = file.split("@") # Separates the path from the comment
+        
+        choicesToSelect.append(questionary.Choice(title=path, description=f"{comment} - {size}", value=path)) # Adds every file as a choice, with each path, description and size
+
+
+    os.system(CLEAR_COMMAND[OS]) # Clear
+
+    print(SCAN_COMPLETE)
+    print("")
+    print("Select files that you want to delete now. These files are sorted from heaviest to lightest")
+    print("When hovering a file, you can see its description at the very bottom")
+
+    filesToDelete = questionary.checkbox("Files: ", choices=choicesToSelect).ask()
+
+    if len(filesToDelete) == 0: # If no files are selected
+        print("Done, nothing to delete")
+        sys.exit(0)
+
+    if len(filesToDelete) == 1: # If 1 file is selected (to say 'this file' and not 'these 1 files' cuz that sounds weird)
+        askConfirmation = input("Are you sure to delete this file ? (y/N) ")
+
+    if len(filesToDelete): # If >1 files are selected
+        askConfirmation = input(f"Are you sure to delete these {len(filesToDelete)} files ? (y/N) ")
+
+    if askConfirmation.lower() != "y": # Checks confirmation
+        print("No files were deleted")
+        sys.exit(0)
+
+    print("Deleting files...")
+    for i in filesToDelete:
+        try:
+            os.remove(i.replace("\"", "")) # Removes quotes
+            print(f"Removed: {i}")
+        except Exception as e:
+            print(f"Error deleting {i}, skipping")
+
+    
+
+    print(THANKS)
+    print("Thank you for using Zasto, have a great day")

@@ -31,9 +31,16 @@ def scan(ignoreList: str = None, focusedPath: str = None, listPathNumber: int = 
             for file in files: # Loops all files because each file isn't represented as a path but another type, so we have to make them links
                 filepath = os.path.join(root, file) # Creates the path via the file, and uses root to sort of "connect them" root <--path--> file
                 
+                # Ignores /proc/ on linux cuz it's gonna take all the space 
+                if "/proc/" in filepath:
+                    continue
+
                 # Verifies if path is included in ignoreList
                 if ignoreList and any(ignore in filepath for ignore in ignoreList):
                     continue
+                
+               
+                
                 
                 
                 try: # Try statement if some shii happens like permission errors
@@ -51,6 +58,6 @@ def scan(ignoreList: str = None, focusedPath: str = None, listPathNumber: int = 
 
     except Exception as e:
         print("Error occured while scanning")
-        print(e)
+        print(f"Py error: {e}")
         return
     
