@@ -2,10 +2,8 @@
 
 <br>
 
-![Static Badge](https://img.shields.io/badge/Download-Windows-blue)
-(https://github.com/moki-fr/zasto/releases/latest/zasto.exe)
-![Static Badge](https://img.shields.io/badge/Download-Linux-brightgreen)
-(https://github.com/moki-fr/zasto/releases/latest/zasto)
+[![Static Badge](https://img.shields.io/badge/Download-Windows-blue)](https://github.com/moki-fr/zasto/releases/latest/zasto.exe)
+[![Static Badge](https://img.shields.io/badge/Download-Linux-brightgreen)](https://github.com/moki-fr/zasto/releases/latest/zasto)
 
 
 v1.0 
