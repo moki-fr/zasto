@@ -2,7 +2,7 @@
 
 ** **
 
-[![Download Windows](https://img.shields.io/badge/Download-Windows-blue?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/moki-fr/zasto/releases/latest/download/zasto.exe)
+[![Download Windows 11](https://img.shields.io/badge/Download-Windows-blue?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/moki-fr/zasto/releases/latest/download/zasto.exe)
 [![Download Linux](https://img.shields.io/badge/Download-Linux-brightgreen?style=for-the-badge&logo=linux&logoColor=white)](https://github.com/moki-fr/zasto/releases/latest/download/zasto)
 
 v1.0 
