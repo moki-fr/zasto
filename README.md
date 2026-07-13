@@ -1,8 +1,12 @@
 <img width="3440" height="1147" alt="Zašto" src="https://github.com/user-attachments/assets/06187736-b303-4e4e-a18b-f0b0bb9e187c" />
 
+<br>
 
+![Static Badge](https://img.shields.io/badge/Download-Windows-blue)
+(https://github.com/moki-fr/zasto/releases/latest/zasto.exe)
+![Static Badge](https://img.shields.io/badge/Download-Linux-brightgreen)
+(https://github.com/moki-fr/zasto/releases/latest/zasto)
 
-[![Downloads](https://img.shields.io/badge/Download-Latest%20Release-blue?style=for-the-badge&logo=github)](https://github.com/moki-fr/zasto/releases/latest/)
 
 v1.0 
 
