@@ -27,17 +27,7 @@ $$$$$$$$\                      $$\
 $$$$$$$$\\$$$$$$$ |$$$$$$$  |  \$$$$  |\$$$$$$  |
 \________|\_______|\_______/    \____/  \______/ """
 
-# Help page to load on --help
-HELP_PAGE = r"""Help page
 
-> zasto.py <command> <option>
-
-Commands:
- • help 
- • key <OpenRouter API key>
- • model <AI Model> (tip: you can reset the model with "reset" option, which sets it to "google/gemma-4-26b-a4b-it")
- • scan <dontask *optional*> (tip: scan command asks to whether to start or not the scan, you can specify if you don't want confirmation)
-"""
 
 # https://texteditor.com/multiline-text-art/ 
 # Great website <3
@@ -216,6 +206,11 @@ if args.filelist != 100:
     filelist = args.filelist
 
     print("Filelist number set")
+
+
+###########
+## SCAN  ##
+###########
 
 
 # Start scanning
