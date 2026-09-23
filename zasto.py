@@ -1,27 +1,27 @@
 # MAIN Script to execute
 
 #############
-## IMPORTS ## 
+## IMPORTS ##
 #############
 
 import argparse # Parse command args
 import sys # Detect OS and exit
-import os # Set home directory 
+import os # Set home directory
 from pathlib import Path # Create config files
 import questionary # Create questionnaries, for selecting which file to delete
 
 from utils import scanner, ai # Our libs for scanning and analyzing
 
 ############
-## CONSTS ## 
+## CONSTS ##
 ############
 
 # Logo to load only if Zasto is executed without any args
-LOGO = r""" 
-$$$$$$$$\                      $$\               
-\____$$  |                     $$ |              
-    $$  / $$$$$$\   $$$$$$$\ $$$$$$\    $$$$$$\  
-   $$  /  \____$$\ $$  _____|\_$$  _|  $$  __$$\ 
+LOGO = r"""
+$$$$$$$$\                      $$\
+\____$$  |                     $$ |
+    $$  / $$$$$$\   $$$$$$$\ $$$$$$\    $$$$$$\
+   $$  /  \____$$\ $$  _____|\_$$  _|  $$  __$$\
   $$  /   $$$$$$$ |\$$$$$$\    $$ |    $$ /  $$ |
  $$  /   $$  __$$ | \____$$\   $$ |$$\ $$ |  $$ |
 $$$$$$$$\\$$$$$$$ |$$$$$$$  |  \$$$$  |\$$$$$$  |
@@ -29,13 +29,13 @@ $$$$$$$$\\$$$$$$$ |$$$$$$$  |  \$$$$  |\$$$$$$  |
 
 
 
-# https://texteditor.com/multiline-text-art/ 
+# https://texteditor.com/multiline-text-art/
 # Great website <3
 
 
 SCAN_COMPLETE = """
  ▄▀▀ ▄▀▀ ▄▀▄ █▄ █   ▄▀▀ ▄▀▄ █▄ ▄█ █▀▄ █   ██▀ ▀█▀ ██▀
- ▄██ ▀▄▄ █▀█ █ ▀█   ▀▄▄ ▀▄▀ █ ▀ █ █▀  █▄▄ █▄▄  █  █▄▄""" 
+ ▄██ ▀▄▄ █▀█ █ ▀█   ▀▄▄ ▀▄▀ █ ▀ █ █▀  █▄▄ █▄▄  █  █▄▄"""
 
 
 THANKS = """
@@ -48,7 +48,7 @@ def debugPrint(text):
     if DEBUG: print(text)
 
 VERISON = "v1.0"
-HOME_DIR =os.path.expanduser("~").replace("\\", "/") # Simplify \ to /
+HOME_DIR = os.path.expanduser("~").replace("\\", "/") # Simplify \ to /
 ZASTO_DIR = Path(HOME_DIR) / ".zasto"
 
 
@@ -68,13 +68,13 @@ else:
 
 
 ##########################
-## FILES INITIALIZATION ## 
+## FILES INITIALIZATION ##
 ##########################
 
 # Creates ~/.zasto/ dir
 ZASTO_DIR.mkdir(parents=True, exist_ok=True)
 
-# Sets API key and model files 
+# Sets API key and model files
 KEY_FILE = ZASTO_DIR / "key"
 MODEL_FILE = ZASTO_DIR / "model"
 
@@ -84,13 +84,13 @@ if not KEY_FILE.exists():
 
 if not MODEL_FILE.exists():
     MODEL_FILE.touch()
-    with open(f"{ZASTO_DIR}/key", "w") as f:
+    with open(f"{ZASTO_DIR}/model", "w") as f:
         f.write("google/gemma-4-26b-a4b-it")
 
 KEY = None
 
 ##################
-## ARGS PARSING ## 
+## ARGS PARSING ##
 ##################
 
 parser = argparse.ArgumentParser(description="Zašto? - An intelligent disk analyzer")
@@ -161,17 +161,17 @@ model = open(f"{ZASTO_DIR}/model", "r").read()
 if args.ignorelist != None:
     ignoreList = []
     try: # Try statement to avoid errors
-        
-        with open(args.ignorelist, "r") as f: # Open ignorelist file 
+
+        with open(args.ignorelist, "r") as f: # Open ignorelist file
             lines = f.readlines()
-        
+
         for line in lines: # Strip line by line
             ignoreList.append(line) # Adds every line of file into the list
-        
+
         ignoreListStr = args.ignorelist # String to show in overview page when --scan is provided, this will show the path of ignorelist
 
         print("Set ignorelist")
-        
+
         if len(sys.argv) == 3: # Warns user in case the command is being used alone
             print("Warning: It looks like you're using this command with no other option, ignore list is not stored in config files.")
 
@@ -201,16 +201,16 @@ if args.path != None:
 
 filelist = 100
 # Gets filelist number
-if args.filelist != 100: 
+if args.filelist != 100:
 
     filelist = args.filelist
 
     print("Filelist number set")
 
 
-###########
-## SCAN  ##
-###########
+############
+##  SCAN  ##
+############
 
 
 # Start scanning
@@ -228,20 +228,20 @@ if args.scan: # BOOL
     print(f"- Ignorelist: {ignoreListStr}")
     print(f"- Path: {focusedPath}")
     print(f"- File list number: {filelist}")
-    
+
     print(" ")
 
 
     # Asks before scanning
-    if input("Are you sure to process scan with all these options ? (y/N) ").lower() != "y": 
+    if input("Are you sure to process scan with all these options ? (y/N) ").lower() != "y":
         print("Aborted.")
         sys.exit(0)
 
     # Scans
     fileScan = scanner.scan(focusedPath=focusedPath, listPathNumber=filelist)
-    
+
     if fileScan == None:
-        print("File scan returns 'None' for some reason wth") 
+        print("File scan returns 'None' for some reason wth")
         sys.exit(1)
 
     print("Scan successful")
@@ -251,15 +251,15 @@ if args.scan: # BOOL
 
 
 
-    
+
     topFiles = aiReply.split("|") # Sets a list where each item is a group of path & comment: ["/home/user/file@Big file"]
-    
+
 
     choicesToSelect = [] # Choices to select i guess...
 
-    for file in topFiles: # Loops all the top files 
+    for file in topFiles: # Loops all the top files
         path, comment, size = file.split("@") # Separates the path from the comment
-        
+
         choicesToSelect.append(questionary.Choice(title=path, description=f"{comment} - {size}", value=path)) # Adds every file as a choice, with each path, description and size
 
 
@@ -294,7 +294,7 @@ if args.scan: # BOOL
         except Exception as e:
             print(f"Error deleting {i}, skipping")
 
-    
+
 
     print(THANKS)
     print("Thank you for using Zasto, have a great day")
