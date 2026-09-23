@@ -11,16 +11,21 @@ You will be given about a 100 paths sorted from heaviest to lightest with their 
 You have 2 rules:
 
 - Respond only with the paths, nothing else before or after, no 'Sure, here are the folders that are worth deleting..'
-- You **HAVE** to use the correct formating, here are a, example:
+- You **HAVE** to use the correct formating, here are an example:
 
-"/home/user/.minecraft/"@Minecraft directory@6.2GB|"/home/user/download/"@Heavy files in download@23GB
+"/home/user/.minecraft/"|Minecraft directory|6.2GB
+"/home/user/download/"|Heavy files in download|23GB
 
+(your anwser needs to be many lines and not all in one line)
 
 Here's an explaination:
 first you link the path of the folder between quotes, then you add a @ to separate the path to the comment and the size, and if you want to add another path with a comment and size, separate it with |
 it can be represented as this:
 
-"path"@comment@size|"path"@comment@size|"path"@comment@size
+"path"|comment|size
+"path"|comment|size
+"path"|comment|size
+...
 
 It's better not to set a comment which contains more than 7 words but it's not really important
 Remember that you HAVE to set a comment, even if you don't know where that file is pointing to, just say "Unknown path" or something like that
@@ -43,8 +48,8 @@ def ai(api_key, model, userPrompt):
                     {
                         "role": "system",
                         "content": f"{SYSTEM_PROMPT}"
-                    },  
-                    {  
+                    },
+                    {
                         "role": "user",
                         "content": f"{userPrompt}"
                     }
@@ -58,7 +63,7 @@ def ai(api_key, model, userPrompt):
         # Get only the ai's response
         reply = data["choices"][0]["message"]["content"]
 
-        if "@" in reply:
+        if "\"|" in reply: # if the answer has a ' "| ' which HAS to be in the answer, then return
             return reply # Correct reply, returning
 
         elif "ai_thinking_error" in reply: # if ai misunderstood smth
@@ -74,5 +79,5 @@ def ai(api_key, model, userPrompt):
 
     except Exception as e: # Py error
         print("Error occured while contacting AI")
-        print(f"Py error: {e}")
+        print(f"Py Exception Error: {e}")
         sys.exit(1)
