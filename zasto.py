@@ -104,7 +104,6 @@ parser.add_argument("--path", help="Recursively scans only one directory (defaul
 parser.add_argument("--filelist", default=100, help="Defines how many file are gonna be in the file list that's gonna be transfered to the ai")
 parser.add_argument("--scan", action="store_true")
 
-
 args = parser.parse_args()
 
 
@@ -119,6 +118,7 @@ if len(sys.argv) == 1:
 # Da version
 if args.version: # BOOL, false by default
     print(f"Version: {VERISON}")
+
 
 
 # If storekey is provided
@@ -144,6 +144,7 @@ key = open(f"{ZASTO_DIR}/key", "r").read()
 if args.key != None:
    key = args.key
 
+key = key.strip() # Removes shii that freaks out AI requests
 
 # Gets model
 if args.model != None:
@@ -213,88 +214,80 @@ if args.filelist != 100:
 ############
 
 
-# Start scanning
-if args.scan: # BOOL
-    os.system(CLEAR_COMMAND[OS]) # Clears the shell whether the machine is on Win or Lnx
-    print(LOGO)
+# Verifies if --scan is used
+if args.scan == False: sys.exit(0) # BOOL
 
-    print(" ")
+os.system(CLEAR_COMMAND[OS]) # Clears the shell whether the machine is on Win or Lnx
+print(LOGO)
+print(" ")
+print("Beginning scan now")
+print(" ")
+print("Quick overview:")
+print(f"- API Key: {key[:15]}*****")
+print(f"- Model: {model}")
+print(f"- Ignorelist: {ignoreListStr}")
+print(f"- Path: {focusedPath}")
+print(f"- File list number: {filelist}")
+print(" ")
 
-    print("Now beginning scan")
-    print(" ")
-    print("Quick overview:")
-    print(f"- API Key: {key[:15]}*****")
-    print(f"- Model: {model}")
-    print(f"- Ignorelist: {ignoreListStr}")
-    print(f"- Path: {focusedPath}")
-    print(f"- File list number: {filelist}")
+# Asks before scanning
+if input("Are you sure to process scan with all these options ? (y/N) ").lower() != "y":
+    print("Aborted.")
+    sys.exit(0)
 
-    print(" ")
+# Scans
+fileScan = scanner.scan(focusedPath=focusedPath, listPathNumber=filelist)
+if fileScan == None:
+    print("File scan returns 'None' for some reason wth")
+    sys.exit(1)
 
+print("Scan successful")
+print("Contacting AI...")
 
-    # Asks before scanning
-    if input("Are you sure to process scan with all these options ? (y/N) ").lower() != "y":
-        print("Aborted.")
-        sys.exit(0)
+aiReply = ai.ai(api_key=key, model=model, userPrompt=fileScan)
+choicesToSelect = []
 
-    # Scans
-    fileScan = scanner.scan(focusedPath=focusedPath, listPathNumber=filelist)
-
-    if fileScan == None:
-        print("File scan returns 'None' for some reason wth")
-        sys.exit(1)
-
-    print("Scan successful")
-
-    print("Contacting AI...")
-    aiReply = ai.ai(api_key=key, model=model, userPrompt=fileScan)
-
-
-
-
-    topFiles = aiReply.split("|") # Sets a list where each item is a group of path & comment: ["/home/user/file@Big file"]
-
-
-    choicesToSelect = [] # Choices to select i guess...
-
-    for file in topFiles: # Loops all the top files
-        path, comment, size = file.split("@") # Separates the path from the comment
-
-        choicesToSelect.append(questionary.Choice(title=path, description=f"{comment} - {size}", value=path)) # Adds every file as a choice, with each path, description and size
-
-
-    os.system(CLEAR_COMMAND[OS]) # Clear
-
-    print(SCAN_COMPLETE)
-    print("")
-    print("Select files that you want to delete now. These files are sorted from heaviest to lightest")
-    print("When hovering a file, you can see its description at the very bottom")
-
-    filesToDelete = questionary.checkbox("Files: ", choices=choicesToSelect).ask()
-
-    if len(filesToDelete) == 0: # If no files are selected
-        print("Done, nothing to delete")
-        sys.exit(0)
-
-    if len(filesToDelete) == 1: # If 1 file is selected (to say 'this file' and not 'these 1 files' cuz that sounds weird)
-        askConfirmation = input("Are you sure to delete this file ? (y/N) ")
-
-    if len(filesToDelete): # If >1 files are selected
-        askConfirmation = input(f"Are you sure to delete these {len(filesToDelete)} files ? (y/N) ")
-
-    if askConfirmation.lower() != "y": # Checks confirmation
-        print("No files were deleted")
-        sys.exit(0)
-
-    print("Deleting files...")
-    for i in filesToDelete:
-        try:
-            os.remove(i.replace("\"", "")) # Removes quotes
-            print(f"Removed: {i}")
-        except Exception as e:
-            print(f"Error deleting {i}, skipping")
+for topFiles in aiReply.strip().splitlines(): # takes
+    if not topFiles.strip():
+        continue
+    path, comment, size = topFiles.split("|", 2) # 2 is for only 2 splits
+    choicesToSelect.append(questionary.Choice(title=path, description=f"{comment} - {size}", value=path)) # Adds every file as a choice, with each path, description and size
 
 
 
-    print(THANKS)
-    print("Thank you for using Zasto, have a great day")
+
+os.system(CLEAR_COMMAND[OS]) # Clear
+
+print(SCAN_COMPLETE)
+print("")
+print("Select files that you want to delete now. These files are sorted from heaviest to lightest")
+print("When hovering a file, you can see its description at the very bottom")
+
+filesToDelete = questionary.checkbox("Files: ", choices=choicesToSelect).ask()
+
+if len(filesToDelete) == 0: # If no files are selected
+    print("Done, nothing to delete")
+    sys.exit(0)
+
+if len(filesToDelete) == 1: # If 1 file is selected (to say 'this file' and not 'these 1 files' cuz that sounds weird)
+    askConfirmation = input("Are you sure to delete this file ? (y/N) ")
+
+else: # If >1 files are selected
+    askConfirmation = input(f"Are you sure to delete these {len(filesToDelete)} files ? (y/N) ")
+
+if askConfirmation.lower() != "y": # Checks confirmation
+    print("No files were deleted")
+    sys.exit(0)
+
+print("Deleting files...")
+for i in filesToDelete:
+    try:
+        os.remove(i.replace("\"", "")) # Removes quotes
+        print(f"Removed: {i}")
+    except Exception as e:
+        print(f"Error deleting {i}, skipping")
+
+
+
+print(THANKS)
+print("Thank you for using Zasto, have a great day")
