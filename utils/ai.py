@@ -63,7 +63,7 @@ def ai(api_key, model, userPrompt):
         # Get only the ai's response
         reply = data["choices"][0]["message"]["content"]
 
-        if "@" in reply:
+        if "\"|" in reply: # if the answer has a ' "| ' which HAS to be in the answer, then return
             return reply # Correct reply, returning
 
         elif "ai_thinking_error" in reply: # if ai misunderstood smth
@@ -79,5 +79,5 @@ def ai(api_key, model, userPrompt):
 
     except Exception as e: # Py error
         print("Error occured while contacting AI")
-        print(f"Py error: {e}")
+        print(f"Py Exception Error: {e}")
         sys.exit(1)

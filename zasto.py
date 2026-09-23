@@ -250,7 +250,7 @@ choicesToSelect = []
 for topFiles in aiReply.strip().splitlines(): # takes
     if not topFiles.strip():
         continue
-    path, comment, size = topFiles.split("|", 2) # 2 is for only 2 splits
+    path, comment, size = topFiles.split("|") # 2 is for only 2 splits
     choicesToSelect.append(questionary.Choice(title=path, description=f"{comment} - {size}", value=path)) # Adds every file as a choice, with each path, description and size
 
 
