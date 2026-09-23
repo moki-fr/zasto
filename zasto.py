@@ -12,6 +12,20 @@ import questionary # Create questionnaries, for selecting which file to delete
 
 from utils import scanner, ai # Our libs for scanning and analyzing
 
+##########
+# COLORS #
+##########
+
+BLACK  = "\033[30m"
+RED    = "\033[31m"
+GREEN  = "\033[32m"
+YELLOW = "\033[33m"
+BLUE   = "\033[34m"
+PURPLE = "\033[35m"
+CYAN   = "\033[36m"
+WHITE  = "\033[37m"
+RESET  = "\033[0m"
+
 ############
 ## CONSTS ##
 ############
@@ -47,7 +61,19 @@ DEBUG = True
 def debugPrint(text):
     if DEBUG: print(text)
 
-VERISON = "v1.0"
+def infoPrint(type, text):
+    type = type.strip().lower()
+    if type == "success":
+        print(f"[{GREEN}+{RESET}] {text}")
+    elif type == "info":
+        print(f"[{CYAN}i{RESET}] {text}")
+    elif type == "warning":
+        print(f"[{YELLOW}!{RESET}] {text}")
+    elif type == "error":
+        print(f"[{RED}!{RESET}] {text}")
+
+
+VERSION = "v1.0"
 HOME_DIR = os.path.expanduser("~").replace("\\", "/") # Simplify \ to /
 ZASTO_DIR = Path(HOME_DIR) / ".zasto"
 
@@ -64,7 +90,7 @@ if sys.platform == "win32":
 elif sys.platform == "linux":
     OS = "lnx"
 else:
-    print("OS not supported, sorry :/")
+    infoPrint("error", "Your OS is not supported, please consider buying a non-Mac PC and install Linux on it")
 
 
 ##########################
@@ -95,7 +121,7 @@ KEY = None
 
 parser = argparse.ArgumentParser(description="Zašto? - An intelligent disk analyzer")
 
-parser.add_argument("--version", action="store_true", help=f"Shows you that the version is {VERISON} ;)")
+parser.add_argument("--version", action="store_true", help=f"Shows you that the version is {VERSION} ;)")
 parser.add_argument("--key", metavar="API_KEY", help="Sets an OpenRouter API key")
 parser.add_argument("--storekey", metavar="API_KEY", help="Sets AND stores an OpenRouter API key (at ~/.Zasto/key)")
 parser.add_argument("--model", help="Sets a model to use and stores it (e.g. google/gemma-4-26b-a4b-it) and stores it at ~/.Zasto/model")
@@ -110,14 +136,14 @@ args = parser.parse_args()
 # If no args are provided then show the help menu and da beautiful logo
 if len(sys.argv) == 1:
     print(LOGO)
-    print(VERISON)
+    infoPrint("info", f"Version: {VERSION}")
     parser.print_help()
     sys.exit(0)
 
 
 # Da version
 if args.version: # BOOL, false by default
-    print(f"Version: {VERISON}")
+    infoPrint("info", f"Version: {VERSION}")
 
 
 
@@ -126,11 +152,12 @@ if args.storekey != None: # parser.get_default("model") is necessary because it'
 
     if args.storekey == "reset":
         key = ""
-        print("Reset key in config")
+        infoPrint("success", f"Reset stored key")
 
     else:
         key = args.storekey
-        print(f"Stored key {args.storekey[0:15]}*****")
+        infoPrint("success", f"Stored key {args.storekey[0:15]}*****")
+
 
     with open(f"{ZASTO_DIR}/key", "w") as f:
         f.write(f"{key}")
@@ -150,8 +177,9 @@ key = key.strip() # Removes shii that freaks out AI requests
 if args.model != None:
     with open(f"{ZASTO_DIR}/model", "w") as f:
         f.write(f"{args.model}")
-    print(f"Set model {args.model} to config")
-    print("If you want set it back to the default, set it to google/gemma-4-26b-a4b-it (free)")
+    infoPrint("success", f"Set model {args.model} to config")
+
+    infoPrint("info", "If you want set it back to the default, set it to google/gemma-4-26b-a4b-it (it's free)")
 # Gets model from config file
 model = open(f"{ZASTO_DIR}/model", "r").read()
 
@@ -171,13 +199,13 @@ if args.ignorelist != None:
 
         ignoreListStr = args.ignorelist # String to show in overview page when --scan is provided, this will show the path of ignorelist
 
-        print("Set ignorelist")
+        infoPrint("success", "Ignorelist set")
 
         if len(sys.argv) == 3: # Warns user in case the command is being used alone
-            print("Warning: It looks like you're using this command with no other option, ignore list is not stored in config files.")
+            infoPrint("warning", "Warning: It looks like you're using this command with no other option, ignore list is not stored in config files.")
 
     except:
-        print("Error occured while trying to import ignorelist, file might not exists")
+        infoPrint("error", "Error occured while trying to import ignorelist, file might not exists")
         sys.exit(1)
 
 else:
@@ -191,13 +219,13 @@ if args.path != None:
     if os.path.exists(args.path): # Checks if path exist
         focusedPath = args.path
 
-        print("Focused path set")
+        infoPrint("success", "Focused path set")
 
         if len(sys.argv) == 3: # Warns user in case the command is being used alone
-            print("Warning: It looks like you're using this command with no other option, focused path is not stored in config files.")
+            infoPrint("warning", "Warning: It looks like you're using this command with no other option, focused path is not stored in config files.")
 
     else:
-        print("Path does not exist")
+        infoPrint("error", "Path does not exist")
 
 
 filelist = 100
@@ -206,7 +234,7 @@ if args.filelist != 100:
 
     filelist = args.filelist
 
-    print("Filelist number set")
+    infoPrint("success", "Filelist number set")
 
 
 ############
@@ -232,17 +260,17 @@ print(" ")
 
 # Asks before scanning
 if input("Are you sure to process scan with all these options ? (y/N) ").lower() != "y":
-    print("Aborted.")
+    infoPrint("warning", "Aborted")
     sys.exit(0)
 
 # Scans
 fileScan = scanner.scan(focusedPath=focusedPath, listPathNumber=filelist)
 if fileScan == None:
-    print("File scan returns 'None' for some reason wth")
+    infoPrint("error", "File scan returns 'None' for some reason wth")
     sys.exit(1)
 
-print("Scan successful")
-print("Contacting AI...")
+infoPrint("success", "Scan successful")
+infoPrint("info", "Contacting AI...")
 
 aiReply = ai.ai(api_key=key, model=model, userPrompt=fileScan)
 choicesToSelect = []
@@ -259,14 +287,15 @@ for topFiles in aiReply.strip().splitlines(): # takes
 os.system(CLEAR_COMMAND[OS]) # Clear
 
 print(SCAN_COMPLETE)
-print("")
-print("Select files that you want to delete now. These files are sorted from heaviest to lightest")
-print("When hovering a file, you can see its description at the very bottom")
+print("\n")
+infoPrint("info", "Select files that you want to delete now. These files are sorted from heaviest to lightest")
+infoPrint("info", "When hovering a file, you can see its description at the very bottom")
+print("\n")
 
 filesToDelete = questionary.checkbox("Files: ", choices=choicesToSelect).ask()
 
 if len(filesToDelete) == 0: # If no files are selected
-    print("Done, nothing to delete")
+    infoPrint("success", "Done, nothing to delete")
     sys.exit(0)
 
 if len(filesToDelete) == 1: # If 1 file is selected (to say 'this file' and not 'these 1 files' cuz that sounds weird)
@@ -276,18 +305,18 @@ else: # If >1 files are selected
     askConfirmation = input(f"Are you sure to delete these {len(filesToDelete)} files ? (y/N) ")
 
 if askConfirmation.lower() != "y": # Checks confirmation
-    print("No files were deleted")
+    infoPrint("warning", "No files were deleted")
     sys.exit(0)
 
-print("Deleting files...")
+infoPrint("info", "Deleting files...")
 for i in filesToDelete:
     try:
         os.remove(i.replace("\"", "")) # Removes quotes
-        print(f"Removed: {i}")
+        infoPrint("success", f"Removed: {i}")
     except Exception as e:
-        print(f"Error deleting {i}, skipping")
+        infoPrint("error", f"Error deleting {i}, skipping")
 
 
 
 print(THANKS)
-print("Thank you for using Zasto, have a great day")
+print("\nThank you for using Zasto, have a great day")
