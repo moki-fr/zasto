@@ -7,30 +7,42 @@
 
 v1.0 
 
+Made in France 💙🤍❤️
+
 ---
 
 Zašto is an open source AI powered tool to help you analyze your disks easily ! 
+Zašto is made to work on both Linux and Windows ! 
 
 ---
 
 
 # Infos and prerequisites
 
-The project is build with python 3.1x+ and probably later with C++, Go (and not rust, I hate rust) or other later to make browsing through disks faster
-The python part is used to communicate with the Openrouter API and for simplicity to make TUI stuff.
-Zašto is made to work on both Linux and Windows ! 
-And Zašto means "why" btw
+The project is built with python 3.1x+ and C++ 
+
+|      Language     |    Why         |
+|-------------------|----------------|
+| Python            | Easier to use for our cli-tui base and for Openrouter's API |
+| C++               | As Zasto uses a scanner to gather information on your disk, C++ would make this process faster especially on HDDs |  
+ 
+
 
 ## Prerequisites
 
 - Python 3.10 or above
+- *Optional:* a C++ compiler
 - A Openrouter API Key (it's free and easy to get)
 
 > [Click here to get your free API key](HOWDOIGETMYAPIKEY.md)
 
 # How to use
 
-The main script is zasto.py, so to run it you have to run
+You can either:
+- Execute the binaries on the release page (not updated for now)
+- Run the main script zasto.py as well as making sure you have all the depedencies (`pip install -r requirements.txt`)
+
+*If you want to run the C++ scanner, you'll also have to compile it first and run it with python*
 
 ```
 python zasto.py [command]
@@ -50,8 +62,21 @@ If no command is set, it will bring you to the help page.
 | `--scan` | None | Starts scanning |
 
 
-If you're too lazy to understand all this, you can just run this command:
+If you're too lazy to understand all this, you can just run these commands: 
 
 ```
-python ./zasto.py --storekey <API_KEY_HERE> --model google/gemma-4-26b-a4b-it --scan
+python ./zasto.py --storekey <API_KEY_HERE> # Only once to store the key in config file
+python ./zasto.py --scan
 ```
+or just
+```
+python ./zasto.py --storekey <API_KEY_HERE> --scan
+```
+
+## To do
+
+|  Task   |   State   |
+|---------|-----------|
+| Make the C++ scanner compatible with Python | In work (ExpensiveCoal) |
+| Create a GUI version | Not started |
+| Make a one file config file| Not started |
