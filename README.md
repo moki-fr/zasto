@@ -79,4 +79,5 @@ python ./zasto.py --storekey <API_KEY_HERE> --scan
 |---------|-----------|
 | Make the C++ scanner compatible with Python | In work (ExpensiveCoal) |
 | Create a GUI version | Not started |
-| Make a one file config file| Not started |
+| Make a one file config file| In work (moki) |
+| Make a --json-output option to store final files in a json format and --yes to skip Y/N | Not Started |
