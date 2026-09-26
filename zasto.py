@@ -9,6 +9,7 @@ import sys # Detect OS and exit
 import os # Set home directory
 from pathlib import Path # Create config files
 import questionary # Create questionnaries, for selecting which file to delete
+import toml
 
 from utils import scanner, ai # Our libs for scanning and analyzing
 
@@ -57,9 +58,14 @@ THANKS = """
   █  █ █ █▀█ █ ▀█ █ █    █  ▀▄▀ ▀▄█
 """
 
-DEBUG = True
-def debugPrint(text):
-    if DEBUG: print(text)
+DEFAULT_CONFIG = {
+    "ai":{
+        "api_key": "YOUR_OPENROUTER_API_KEY",
+        "model": "google/gemma-4-26b-a4b-it"
+    }
+}
+
+# Python should have camelCase
 
 def infoPrint(type, text):
     type = type.strip().lower()
@@ -73,18 +79,10 @@ def infoPrint(type, text):
         print(f"[{RED}!{RESET}] {text}")
 
 
-VERSION = "v1.0"
-HOME_DIR = os.path.expanduser("~").replace("\\", "/") # Simplify \ to /
-ZASTO_DIR = Path(HOME_DIR) / ".zasto"
 
 
 
-CLEAR_COMMAND = {"win": "cls", "lnx": "clear"}
-
-##################
-## OS DETECTION ##
-##################
-
+# OS DETECTION
 if sys.platform == "win32":
     OS = "win"
 elif sys.platform == "linux":
@@ -93,27 +91,43 @@ else:
     infoPrint("error", "Your OS is not supported, please consider buying a non-Mac PC and install Linux on it")
 
 
-##########################
-## FILES INITIALIZATION ##
-##########################
+VERSION = "v1.0"
+HOME_DIR = os.path.expanduser("~").replace("\\", "/") # Simplify \ to /
+ZASTO_DIR = Path(HOME_DIR) / ".zasto"
+CONFIG_FILE_PATH = ZASTO_DIR / "config.toml"
+
+CLEAR_COMMAND = {"win": "cls", "lnx": "clear"}
+
+
+
+
+
+
+
 
 # Creates ~/.zasto/ dir
 ZASTO_DIR.mkdir(parents=True, exist_ok=True)
 
-# Sets API key and model files
-KEY_FILE = ZASTO_DIR / "key"
-MODEL_FILE = ZASTO_DIR / "model"
+##########################
+## FILES INITIALIZATION ##
+##########################
 
-# Create files if needed
-if not KEY_FILE.exists():
-    KEY_FILE.touch()
 
-if not MODEL_FILE.exists():
-    MODEL_FILE.touch()
-    with open(f"{ZASTO_DIR}/model", "w") as f:
-        f.write("google/gemma-4-26b-a4b-it")
 
-KEY = None
+if not CONFIG_FILE_PATH.exists(): # Creates config file if it doesn't exist
+    CONFIG_FILE_PATH.touch()
+    with open(f"{CONFIG_FILE_PATH}", "w") as f:
+        toml.dump(DEFAULT_CONFIG, f) 
+
+TOML_CONFIG = toml.load(f"{ZASTO_DIR}/config.toml")
+
+
+
+
+STORED_API_KEY = TOML_CONFIG["ai"]["api_key"]
+STORED_MODEL = TOML_CONFIG["ai"]["model"]
+
+
 
 ##################
 ## ARGS PARSING ##
@@ -123,8 +137,8 @@ parser = argparse.ArgumentParser(description="Zašto? - An intelligent disk anal
 
 parser.add_argument("--version", action="store_true", help=f"Shows you that the version is {VERSION} ;)")
 parser.add_argument("--key", metavar="API_KEY", help="Sets an OpenRouter API key")
-parser.add_argument("--storekey", metavar="API_KEY", help="Sets AND stores an OpenRouter API key (at ~/.Zasto/key)")
-parser.add_argument("--model", help="Sets a model to use and stores it (e.g. google/gemma-4-26b-a4b-it) and stores it at ~/.Zasto/model")
+parser.add_argument("--storekey", metavar="API_KEY", help="Sets AND stores an OpenRouter API key (in config)")
+parser.add_argument("--model", help="Sets a model to use and stores it (e.g. google/gemma-4-26b-a4b-it) and stores it in config)")
 parser.add_argument("--ignorelist", metavar="FILE", help="Path to the file that contains every paths that should not be verified")
 parser.add_argument("--path", help="Recursively scans only one directory (default is root)")
 parser.add_argument("--filelist", default=100, help="Defines how many file are gonna be in the file list that's gonna be transfered to the ai")
@@ -158,30 +172,33 @@ if args.storekey != None: # parser.get_default("model") is necessary because it'
         key = args.storekey
         infoPrint("success", f"Stored key {args.storekey[0:15]}*****")
 
+    with open(f"{CONFIG_FILE_PATH}", "w") as f:
+        TOML_CONFIG["ai"]["api_key"] = f"{key}"
+        toml.dump(TOML_CONFIG, f)
+                
 
-    with open(f"{ZASTO_DIR}/key", "w") as f:
-        f.write(f"{key}")
 
-
-# Reads key in config BEFORE getting the key from the command so it doesn't overwrite the key in the command
-key = open(f"{ZASTO_DIR}/key", "r").read()
-
+key = STORED_API_KEY # Reads key in config BEFORE getting the key from the command so it doesn't overwrite the key in the command
+model = STORED_MODEL
 
 # Gets key from command
 if args.key != None:
-   key = args.key
+    key = args.key
 
 key = key.strip() # Removes shii that freaks out AI requests
 
 # Gets model
 if args.model != None:
-    with open(f"{ZASTO_DIR}/model", "w") as f:
-        f.write(f"{args.model}")
+    with open(f"{CONFIG_FILE_PATH}", "w") as f:
+        TOML_CONFIG["ai"]["model"] = f"{args.model}"
+        toml.dump(TOML_CONFIG, f)
     infoPrint("success", f"Set model {args.model} to config")
 
     infoPrint("info", "If you want set it back to the default, set it to google/gemma-4-26b-a4b-it (it's free)")
-# Gets model from config file
-model = open(f"{ZASTO_DIR}/model", "r").read()
+
+    model = args.model
+
+
 
 
 
@@ -235,6 +252,9 @@ if args.filelist != 100:
     filelist = args.filelist
 
     infoPrint("success", "Filelist number set")
+
+    if len(sys.argv) == 3: # Warns user in case the command is being used alone
+        infoPrint("warning", "Warning: It looks like you're using this command with no other option, filelist is not stored in config files.")
 
 
 ############
