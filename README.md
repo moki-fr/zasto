@@ -16,6 +16,11 @@ Zašto is made to work on both Linux and Windows !
 
 ---
 
+**Useful MDs**
+[Get your OpenRouter API key for free](MDs/HOWDOIGETMYAPIKEY.md)
+[View code changelog](MDs/CHANGELOG.md)
+
+---
 
 # Infos and prerequisites
 

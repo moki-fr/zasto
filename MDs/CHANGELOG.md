@@ -12,6 +12,8 @@
 **Bug fixing**
 - api key reading error due to whitespace chars
 
+---
+
 ### 1.0
 
 **Features**
