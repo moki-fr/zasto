@@ -5,7 +5,7 @@
 [![Download Windows](https://img.shields.io/badge/Download-Windows-blue?style=for-the-badge&logo=windows11&logoColor=white)](https://github.com/moki-fr/zasto/releases/latest/download/zasto.exe)
 [![Download Linux](https://img.shields.io/badge/Download-Linux-brightgreen?style=for-the-badge&logo=linux&logoColor=white)](https://github.com/moki-fr/zasto/releases/latest/download/zasto)
 
-v1.0 
+v1.1
 
 Made in France 💙🤍❤️
 
@@ -21,10 +21,10 @@ Zašto is made to work on both Linux and Windows !
 
 The project is built with python 3.1x+ and C++ 
 
-|      Language     |    Why         |
-|-------------------|----------------|
-| Python            | Easier to use for our cli-tui base and for Openrouter's API |
-| C++               | As Zasto uses a scanner to gather information on your disk, C++ would make this process faster especially on HDDs |  
+|      Language      |    Why         |
+|--------------------|----------------|
+| Python             | Easier to use for our cli-tui base and for Openrouter's API |
+| C++ (and not rust) | As Zasto uses a scanner to gather information on your disk, C++ would make this process faster especially on HDDs |  
  
 
 
@@ -79,5 +79,4 @@ python ./zasto.py --storekey <API_KEY_HERE> --scan
 |---------|-----------|
 | Make the C++ scanner compatible with Python | In work (ExpensiveCoal) |
 | Create a GUI version | Not started |
-| Make a one file config file| In work (moki) |
 | Make a --json-output option to store final files in a json format and --yes to skip Y/N | Not Started |

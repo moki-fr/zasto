@@ -6,3 +6,6 @@ done compiling
 dist
 build
 zasto.spec
+lib64/
+lib
+ignorelist.txt
