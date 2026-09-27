@@ -31,6 +31,7 @@ It's better not to set a comment which contains more than 7 words but it's not r
 Remember that you HAVE to set a comment, even if you don't know where that file is pointing to, just say "Unknown path" or something like that
 And also you HAVE to set a size, even if you're not sure just say "? GB"
 
+It's better not to consider binary executable programs as something that's worth deleting because we assume that the user knows what programs they have installed. So for example avoid 'C:/ProgramFiles/ACoolProgram/program.exe'
 If you have any problem (like not having the paths, or missunderstood something) please replace your whole reply with "ai_thinking_error" """
 
 

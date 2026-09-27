@@ -91,7 +91,7 @@ else:
     infoPrint("error", "Your OS is not supported, please consider buying a non-Mac PC and install Linux on it")
 
 
-VERSION = "v1.0"
+VERSION = "v1.1"
 HOME_DIR = os.path.expanduser("~").replace("\\", "/") # Simplify \ to /
 ZASTO_DIR = Path(HOME_DIR) / ".zasto"
 CONFIG_FILE_PATH = ZASTO_DIR / "config.toml"
