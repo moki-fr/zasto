@@ -2,7 +2,7 @@
 
 ---
 
-### 1.1 
+### 1.1  - 27/09/26
 
 **Features**
 - TOML Config file
