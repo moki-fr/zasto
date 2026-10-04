@@ -5,9 +5,10 @@
 #############
 
 import argparse # Parse command args
+import json
 import sys # Detect OS and exit
 import os # Set home directory
-from pathlib import Path # Create config files
+from pathlib import Path # Create config file
 import questionary # Create questionnaries, for selecting which file to delete
 import toml
 
@@ -56,6 +57,8 @@ SCAN_COMPLETE = """
 THANKS = """
  ▀█▀ █▄█ ▄▀▄ █▄ █ █▄▀   ▀▄▀ ▄▀▄ █ █
   █  █ █ █▀█ █ ▀█ █ █    █  ▀▄▀ ▀▄█
+
+  Thank you for using Zasto ! Have a great day
 """
 
 DEFAULT_CONFIG = {
@@ -91,7 +94,7 @@ else:
     infoPrint("error", "Your OS is not supported, please consider buying a non-Mac PC and install Linux on it")
 
 
-VERSION = "v1.1"
+VERSION = "v1.2"
 HOME_DIR = os.path.expanduser("~").replace("\\", "/") # Simplify \ to /
 ZASTO_DIR = Path(HOME_DIR) / ".zasto"
 CONFIG_FILE_PATH = ZASTO_DIR / "config.toml"
@@ -117,7 +120,7 @@ ZASTO_DIR.mkdir(parents=True, exist_ok=True)
 if not CONFIG_FILE_PATH.exists(): # Creates config file if it doesn't exist
     CONFIG_FILE_PATH.touch()
     with open(f"{CONFIG_FILE_PATH}", "w") as f:
-        toml.dump(DEFAULT_CONFIG, f) 
+        toml.dump(DEFAULT_CONFIG, f)
 
 TOML_CONFIG = toml.load(f"{ZASTO_DIR}/config.toml")
 
@@ -139,9 +142,11 @@ parser.add_argument("--version", action="store_true", help=f"Shows you that the 
 parser.add_argument("--key", metavar="API_KEY", help="Sets an OpenRouter API key")
 parser.add_argument("--storekey", metavar="API_KEY", help="Sets AND stores an OpenRouter API key (in config)")
 parser.add_argument("--model", help="Sets a model to use and stores it (e.g. google/gemma-4-26b-a4b-it) and stores it in config)")
-parser.add_argument("--ignorelist", metavar="FILE", help="Path to the file that contains every paths that should not be verified")
+parser.add_argument("--ignorelist", metavar="FILE", help="Path to the file that contains every paths that should not be scanned")
 parser.add_argument("--path", help="Recursively scans only one directory (default is root)")
 parser.add_argument("--filelist", default=100, help="Defines how many file are gonna be in the file list that's gonna be transfered to the ai")
+parser.add_argument("--json", metavar="FILE", help="Outputs all the worth-deleting files in a json file instead of showing them in a tui selector")
+parser.add_argument("--force", action="store_true") # Forces action that are not safe (like overwritting a  JSON file)
 parser.add_argument("--scan", action="store_true")
 
 args = parser.parse_args()
@@ -175,7 +180,7 @@ if args.storekey != None: # parser.get_default("model") is necessary because it'
     with open(f"{CONFIG_FILE_PATH}", "w") as f:
         TOML_CONFIG["ai"]["api_key"] = f"{key}"
         toml.dump(TOML_CONFIG, f)
-                
+
 
 
 key = STORED_API_KEY # Reads key in config BEFORE getting the key from the command so it doesn't overwrite the key in the command
@@ -219,7 +224,7 @@ if args.ignorelist != None:
         infoPrint("success", "Ignorelist set")
 
         if len(sys.argv) == 3: # Warns user in case the command is being used alone
-            infoPrint("warning", "Warning: It looks like you're using this command with no other option, ignore list is not stored in config files.")
+            infoPrint("warning", "Warning: It looks like you're using this command with no other option, ignore list is not stored in config file.")
 
     except:
         infoPrint("error", "Error occured while trying to import ignorelist, file might not exists")
@@ -239,7 +244,7 @@ if args.path != None:
         infoPrint("success", "Focused path set")
 
         if len(sys.argv) == 3: # Warns user in case the command is being used alone
-            infoPrint("warning", "Warning: It looks like you're using this command with no other option, focused path is not stored in config files.")
+            infoPrint("warning", "Warning: It looks like you're using this command with no other option, focused path is not stored in config file.")
 
     else:
         infoPrint("error", "Path does not exist")
@@ -254,7 +259,27 @@ if args.filelist != 100:
     infoPrint("success", "Filelist number set")
 
     if len(sys.argv) == 3: # Warns user in case the command is being used alone
-        infoPrint("warning", "Warning: It looks like you're using this command with no other option, filelist is not stored in config files.")
+        infoPrint("warning", "Warning: It looks like you're using this command with no other option, filelist is not stored in config file.")
+
+
+# Gets ignorelist
+jsonStr = "No"
+if args.json != None:
+    
+    if os.path.exists(args.json): # If file exist
+        
+        if args.force == False: # If --force is not used
+            infoPrint("error", "Error, this file already exists, use '--force' to ignore")
+            sys.exit(1)
+
+        infoPrint("warning", "Warning: You will overwrite an existing JSON file")
+
+    jsonStr = f"Yes ({args.json})"
+
+    infoPrint("success", "JSON output file set")
+
+    if len(sys.argv) == 3: # Warns user in case the command is being used alone
+        infoPrint("warning", "Warning: It looks like you're using this command with no other option, JSON outputting is not stored in config file.")
 
 
 ############
@@ -265,7 +290,7 @@ if args.filelist != 100:
 # Verifies if --scan is used
 if args.scan == False: sys.exit(0) # BOOL
 
-os.system(CLEAR_COMMAND[OS]) # Clears the shell whether the machine is on Win or Lnx
+#os.system(CLEAR_COMMAND[OS]) # Clears the shell whether the machine is on Win or Lnx
 print(LOGO)
 print(" ")
 print("Beginning scan now")
@@ -276,7 +301,8 @@ print(f"- Model: {model}")
 print(f"- Ignorelist: {ignoreListStr}")
 print(f"- Path: {focusedPath}")
 print(f"- File list number: {filelist}")
-print(" ")
+print(f"- JSON: {jsonStr}")
+print("")
 
 # Asks before scanning
 if input("Are you sure to process scan with all these options ? (y/N) ").lower() != "y":
@@ -293,50 +319,87 @@ infoPrint("success", "Scan successful")
 infoPrint("info", "Contacting AI...")
 
 aiReply = ai.ai(api_key=key, model=model, userPrompt=fileScan)
-choicesToSelect = []
-
-for topFiles in aiReply.strip().splitlines(): # takes
-    if not topFiles.strip():
-        continue
-    path, comment, size = topFiles.split("|") # 2 is for only 2 splits
-    choicesToSelect.append(questionary.Choice(title=path, description=f"{comment} - {size}", value=path)) # Adds every file as a choice, with each path, description and size
 
 
+match args.json: # Do specific action depending on if the JSON option is used
+    case None: # If no JSON is specified
+        choicesToSelect = []
+
+        for topFiles in aiReply.strip().splitlines(): # takes
+            if not topFiles.strip():
+                continue
+            path, comment, size = topFiles.split("|") 
+            choicesToSelect.append(questionary.Choice(title=path, description=f"{comment} - {size}", value=path)) # Adds every file as a choice, with each path, description and size
 
 
-os.system(CLEAR_COMMAND[OS]) # Clear
+        os.system(CLEAR_COMMAND[OS]) # Clear
 
-print(SCAN_COMPLETE)
-print("\n")
-infoPrint("info", "Select files that you want to delete now. These files are sorted from heaviest to lightest")
-infoPrint("info", "When hovering a file, you can see its description at the very bottom")
-print("\n")
+        print(SCAN_COMPLETE)
+        print("\n")
+        infoPrint("info", "Select files that you want to delete now. These files are sorted from heaviest to lightest")
+        infoPrint("info", "When hovering a file, you can see its description at the very bottom")
+        print("\n")
 
-filesToDelete = questionary.checkbox("Files: ", choices=choicesToSelect).ask()
+        filesToDelete = questionary.checkbox("Files: ", choices=choicesToSelect).ask()
 
-if len(filesToDelete) == 0: # If no files are selected
-    infoPrint("success", "Done, nothing to delete")
-    sys.exit(0)
+        if len(filesToDelete) == 0: # If no files are selected
+            infoPrint("success", "Done, nothing to delete")
+            sys.exit(0)
 
-if len(filesToDelete) == 1: # If 1 file is selected (to say 'this file' and not 'these 1 files' cuz that sounds weird)
-    askConfirmation = input("Are you sure to delete this file ? (y/N) ")
+        if len(filesToDelete) == 1: # If 1 file is selected (to say 'this file' and not 'these 1 files' cuz that sounds weird)
+            askConfirmation = input("Are you sure to delete this file ? (y/N) ")
 
-else: # If >1 files are selected
-    askConfirmation = input(f"Are you sure to delete these {len(filesToDelete)} files ? (y/N) ")
+        else: # If >1 files are selected
+            askConfirmation = input(f"Are you sure to delete these {len(filesToDelete)} files ? (y/N) ")
 
-if askConfirmation.lower() != "y": # Checks confirmation
-    infoPrint("warning", "No files were deleted")
-    sys.exit(0)
+        if askConfirmation.lower() != "y": # Checks confirmation
+            infoPrint("warning", "No files were deleted")
+            sys.exit(0)
 
-infoPrint("info", "Deleting files...")
-for i in filesToDelete:
-    try:
-        os.remove(i.replace("\"", "")) # Removes quotes
-        infoPrint("success", f"Removed: {i}")
-    except Exception as e:
-        infoPrint("error", f"Error deleting {i}, skipping")
+        infoPrint("info", "Deleting files...")
+        for i in filesToDelete:
+            try:
+                os.remove(i.replace("\"", "")) # Removes quotes
+                infoPrint("success", f"Removed: {i}")
+            except Exception as e:
+                infoPrint("error", f"Error deleting {i}, skipping")
+
+        print(THANKS)
 
 
 
-print(THANKS)
-print("\nThank you for using Zasto, have a great day")
+    case _: # If --json is used
+        
+        """
+        JSON output should look like this:
+        {
+            "~/Downloads/HeavyFile.txt": {
+                "size": 12303204,
+                "comment": "Heavy file in download folder"
+            },
+            ...
+        }
+        """
+
+        jsonOutput = {} # Create empty JSON object
+
+        for topFiles in aiReply.strip().splitlines():
+            if not topFiles.strip():
+                continue
+            path, comment, size = topFiles.split("|") 
+
+            #TODO: Fix bug that make path quadruble backslash for some reason
+            jsonOutput[path] = {"size": size, "comment": comment}
+
+
+        try:
+            Path(args.json).touch() # Creates the file
+            with open(args.json, "w") as f: # Write JSON to the file
+                f.write(str(jsonOutput))
+
+            infoPrint("success", "JSON file written !")
+
+        except:
+            infoPrint("error", "Error while creating JSON file")
+
+        print(THANKS)

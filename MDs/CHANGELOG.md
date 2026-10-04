@@ -2,6 +2,12 @@
 
 ---
 
+### 1.2  - 04/10/26
+
+**Features**
+- JSON Outputting option (`--json`)
+
+
 ### 1.1  - 27/09/26
 
 **Features**
