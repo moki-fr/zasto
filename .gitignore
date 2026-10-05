@@ -9,5 +9,6 @@ zasto.spec
 lib64/
 lib
 *.json
+utils/__pycache__
 zasto.*/
 zasto.*
