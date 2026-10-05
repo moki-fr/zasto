@@ -11,4 +11,4 @@ lib
 *.json
 utils/__pycache__
 zasto.*/
-zasto.*
+zasto.exe
