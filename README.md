@@ -80,10 +80,47 @@ or just
 python ./zasto.py --storekey <API_KEY_HERE> --scan
 ```
 
+## How to build
+
+The releases are built with nuitka since Zasto 1.2, since it provides faster code execution and lighter file output size.
+You can still package the project with pyinstaller, but the output will be slower and heavier.
+ 
+### 1. Create venv (recommended)
+
+```
+python -m venv venv
+```
+
+Then activate the venv, command changes depending on your OS and shell, here's an example for Linux on Fish shell
+
+```
+source /venv/bin/activate.fish
+```
+
+### 2. Install requirements & nuitka
+
+```
+pip install -r requirements.txt
+```
+
+```
+pip install nuitka
+```
+
+### 3. Build with Nuitka
+
+```
+python -m nuitka zasto.py --onefile
+```
+
+This can take about 3-10 min depending on your hardware
+Nuitka's log should show you where your compiled file was created, it's often in Zasto's folder
+
+
 ## To do
 
 |  Task   |   State   |
 |---------|-----------|
 | Make the C++ scanner compatible with Python | In work (ExpensiveCoal) |
 | Create a GUI version | Not started |
-| Make a --json-output option to store final files in a json format and --yes to skip Y/N | Not Started |
+| Make a --json-output option to store final files in a json format and --yes to skip Y/N | In work (moki) |
