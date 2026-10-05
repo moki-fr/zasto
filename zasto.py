@@ -1,4 +1,4 @@
-#NOUVEAU MAIN Script to execute
+# MAIN Script to execute
 
 #############
 ## IMPORTS ##
@@ -145,7 +145,8 @@ parser.add_argument("--ignorelist", metavar="FILE", help="Path to the file that 
 parser.add_argument("--path", help="Recursively scans only one directory (default is root)")
 parser.add_argument("--filelist", default=100, help="Defines how many file are gonna be in the file list that's gonna be transfered to the ai")
 parser.add_argument("--json", metavar="FILE", help="Outputs all the worth-deleting files in a json file instead of showing them in a tui selector")
-parser.add_argument("--force", action="store_true") # Forces action that are not safe (like overwritting a  JSON file)
+parser.add_argument("--force", action="store_true", help="Forces action that are not safe (like overwritting a  JSON file)") 
+parser.add_argument("--yes", action="store_true", help="Ignores the y/n prompt")
 parser.add_argument("--scan", action="store_true")
 
 args = parser.parse_args()
@@ -203,10 +204,6 @@ if args.model != None:
     model = args.model
 
 
-
-
-
-
 # Gets ignorelist
 if args.ignorelist != None:
     ignoreList = []
@@ -222,7 +219,7 @@ if args.ignorelist != None:
 
         infoPrint("success", "Ignorelist set")
 
-        if len(sys.argv) == 3: # Warns user in case the command is being used alone
+        if not args.scan: # Warns user in case the command is being used alone
             infoPrint("warning", "Warning: It looks like you're using this command with no other option, ignore list is not stored in config file.")
 
     except:
@@ -242,7 +239,7 @@ if args.path != None:
 
         infoPrint("success", "Focused path set")
 
-        if len(sys.argv) == 3: # Warns user in case the command is being used alone
+        if not args.scan: # Warns user in case the command is being used alone
             infoPrint("warning", "Warning: It looks like you're using this command with no other option, focused path is not stored in config file.")
 
     else:
@@ -257,7 +254,7 @@ if args.filelist != 100:
 
     infoPrint("success", "Filelist number set")
 
-    if len(sys.argv) == 3: # Warns user in case the command is being used alone
+    if not args.scan: # Warns user in case the command is being used alone
         infoPrint("warning", "Warning: It looks like you're using this command with no other option, filelist is not stored in config file.")
 
 
@@ -277,8 +274,14 @@ if args.json != None:
 
     infoPrint("success", "JSON output file set")
 
-    if len(sys.argv) == 3: # Warns user in case the command is being used alone
+    if not args.scan: # Warns user in case the command is being used alone
         infoPrint("warning", "Warning: It looks like you're using this command with no other option, JSON outputting is not stored in config file.")
+
+if args.yes:
+    infoPrint("success", "Yes option applied")
+    
+    if not args.scan: # Warns user in case the command is being used alone
+        infoPrint("warning", "Warning: It looks like you're using this command with no other option, \"Yes\" option is not stored in config file.")
 
 
 ############
@@ -301,12 +304,14 @@ print(f"- Ignorelist: {ignoreListStr}")
 print(f"- Path: {focusedPath}")
 print(f"- File list number: {filelist}")
 print(f"- JSON: {jsonStr}")
-print("")
+print("\n")
 
 # Asks before scanning
-if input("Are you sure to process scan with all these options ? (y/N) ").lower() != "y":
-    infoPrint("warning", "Aborted")
-    sys.exit(0)
+if not args.yes: # If --yes is not specified
+    yn = input("Are you sure to process scan with all these options ? (y/N) ").lower()
+    if yn != "y":
+        infoPrint("warning", "Aborted")
+        sys.exit(0)
 
 # Scans
 fileScan = scanner.scan(focusedPath=focusedPath, listPathNumber=filelist)

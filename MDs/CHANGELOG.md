@@ -7,7 +7,11 @@
 **Features**
 - JSON Outputting option (`--json`)
 - Force option (`--force`)
+- Yes option (`--yes`)
+- Nuitka Compiling instruction in README.md
 
+**Bug fixing**
+- False positive warning while `--scan` used
 
 ### 1.1  - 27/09/26
 
