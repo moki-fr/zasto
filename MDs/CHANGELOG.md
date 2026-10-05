@@ -2,10 +2,11 @@
 
 ---
 
-### 1.2  - 04/10/26
+### 1.2  - 05/10/26
 
 **Features**
 - JSON Outputting option (`--json`)
+- Force option (`--force`)
 
 
 ### 1.1  - 27/09/26

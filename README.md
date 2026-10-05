@@ -5,7 +5,7 @@
 [![Download Windows](https://img.shields.io/badge/Download-Windows-blue?style=for-the-badge&logo=windows11&logoColor=white)](https://github.com/moki-fr/zasto/releases/latest/download/zasto.exe)
 [![Download Linux](https://img.shields.io/badge/Download-Linux-brightgreen?style=for-the-badge&logo=linux&logoColor=white)](https://github.com/moki-fr/zasto/releases/latest/download/zasto)
 
-v1.1
+v1.2
 
 Made in France 💙🤍❤️
 
@@ -86,4 +86,4 @@ python ./zasto.py --storekey <API_KEY_HERE> --scan
 |---------|-----------|
 | Make the C++ scanner compatible with Python | In work (ExpensiveCoal) |
 | Create a GUI version | Not started |
-| Make a --json-output option to store final files in a json format and --yes to skip Y/N | Not Started |
+| Make a --json-output option to store final files in a json format and --yes to skip Y/N | In work (moki) |
