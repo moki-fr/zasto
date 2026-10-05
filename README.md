@@ -5,7 +5,7 @@
 [![Download Windows](https://img.shields.io/badge/Download-Windows-blue?style=for-the-badge&logo=windows11&logoColor=white)](https://github.com/moki-fr/zasto/releases/latest/download/zasto.exe)
 [![Download Linux](https://img.shields.io/badge/Download-Linux-brightgreen?style=for-the-badge&logo=linux&logoColor=white)](https://github.com/moki-fr/zasto/releases/latest/download/zasto)
 
-v1.1
+v1.2
 
 Made in France 💙🤍❤️
 
@@ -66,6 +66,8 @@ If no command is set, it will bring you to the help page.
 | `--ignorelist` | File path | Sets a list where the scanning script won't check, only for this command |
 | `--path` | Directory path | Sets a path where you want the script to check, only for this command |
 | `--filelist` | Number (int) | Sets the number of file that will be given to the AI |
+| `--json` | Output file path | Outputs the worth-deleting files in a JSON file instead of showing them in the TUI selector |
+| `--force` | None | Forces some options (works with: `--json`) |
 | `--scan` | None | Starts scanning |
 
 
