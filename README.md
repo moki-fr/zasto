@@ -125,4 +125,4 @@ Nuitka's log should show you where your compiled file was created, it's often in
 |---------|-----------|
 | Make the C++ scanner compatible with Python | In work (ExpensiveCoal) |
 | Create a GUI version | Not started |
-| Make a --json-output option to store final files in a json format and --yes to skip Y/N | In work (moki) |
+| Speed up execution speed organizing depedencies | Not started |
