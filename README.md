@@ -13,6 +13,7 @@ Made in France 💙🤍❤️
 
 Zašto is an open source AI powered tool to help you analyze your disks easily ! 
 Zašto is made to work on both Linux and Windows ! 
+Zašto is 100% human made, no AI is used in the code.
 
 ---
 
@@ -68,6 +69,7 @@ If no command is set, it will bring you to the help page.
 | `--filelist` | Number (int) | Sets the number of file that will be given to the AI |
 | `--json` | Output file path | Outputs the worth-deleting files in a JSON file instead of showing them in the TUI selector |
 | `--force` | None | Forces some options (works with: `--json`) |
+| `--yes` | None | Skips y/n prompt |
 | `--scan` | None | Starts scanning |
 
 
