@@ -8,24 +8,8 @@ import argparse # Parse command args
 import sys # Detect OS and exit
 import os # Set home directory
 from pathlib import Path # Create config file
-import questionary # Create questionnaries, for selecting which file to delete
 import toml # Config file
-
-from utils import scanner, ai # Our libs for scanning and analyzing
-
-##########
-# COLORS #
-##########
-
-BLACK  = "\033[30m"
-RED    = "\033[31m"
-GREEN  = "\033[32m"
-YELLOW = "\033[33m"
-BLUE   = "\033[34m"
-PURPLE = "\033[35m"
-CYAN   = "\033[36m"
-WHITE  = "\033[37m"
-RESET  = "\033[0m"
+from utils.fancy import * # Fancy prints
 
 ############
 ## CONSTS ##
@@ -67,22 +51,7 @@ DEFAULT_CONFIG = {
     }
 }
 
-# Python should have camelCase
-
-def infoPrint(type, text):
-    type = type.strip().lower()
-    if type == "success":
-        print(f"[{GREEN}+{RESET}] {text}")
-    elif type == "info":
-        print(f"[{CYAN}i{RESET}] {text}")
-    elif type == "warning":
-        print(f"[{YELLOW}!{RESET}] {text}")
-    elif type == "error":
-        print(f"[{RED}!{RESET}] {text}")
-
-
-
-
+# Python should use camelCase
 
 # OS DETECTION
 if sys.platform == "win32":
@@ -101,12 +70,6 @@ CONFIG_FILE_PATH = ZASTO_DIR / "config.toml"
 CLEAR_COMMAND = {"win": "cls", "lnx": "clear"}
 
 
-
-
-
-
-
-
 # Creates ~/.zasto/ dir
 ZASTO_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -122,9 +85,6 @@ if not CONFIG_FILE_PATH.exists(): # Creates config file if it doesn't exist
         toml.dump(DEFAULT_CONFIG, f)
 
 TOML_CONFIG = toml.load(f"{ZASTO_DIR}/config.toml")
-
-
-
 
 STORED_API_KEY = TOML_CONFIG["ai"]["api_key"]
 STORED_MODEL = TOML_CONFIG["ai"]["model"]
@@ -163,7 +123,6 @@ if len(sys.argv) == 1:
 # Da version
 if args.version: # BOOL, false by default
     infoPrint("info", f"Version: {VERSION}")
-
 
 
 # If storekey is provided
@@ -314,7 +273,12 @@ if not args.yes: # If --yes is not specified
         sys.exit(0)
 
 # Scans
+
+
+from utils import scanner, ai # import the scanner & ai utils
+
 fileScan = scanner.scan(focusedPath=focusedPath, listPathNumber=filelist)
+
 if fileScan == None:
     infoPrint("error", "File scan returns 'None' for some reason wth")
     sys.exit(1)
@@ -327,6 +291,8 @@ aiReply = ai.ai(api_key=key, model=model, userPrompt=fileScan)
 
 match args.json: # Do specific action depending on if the JSON option is used
     case None: # If no JSON is specified
+        import questionary # Create questionnaries, for selecting which file to delete
+        
         choicesToSelect = []
 
         for topFiles in aiReply.strip().splitlines(): # takes
