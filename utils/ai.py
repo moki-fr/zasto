@@ -14,9 +14,11 @@ You have 2 rules:
 - You **HAVE** to use the correct formating, here are an example:
 
 "/home/user/.minecraft/"|Minecraft directory|6.2GB
-"/home/user/download/"|Heavy files in download|23GB
+"/home/user/download/heavy.txt"|Heavy files in download|23GB
+"/home/user/Document/document.png"|Heavy document|14GB
 
-(your anwser needs to be many lines and not all in one line)
+
+Your anwser has to be multiple lines, the three lines above is what you should answer, each line equals a file.
 
 Here's an explaination:
 first you link the path of the folder between quotes, then you add a @ to separate the path to the comment and the size, and if you want to add another path with a comment and size, separate it with |
