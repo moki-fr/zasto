@@ -13,6 +13,8 @@
 **Bug fixing**
 - False positive warning while `--scan` used
 
+---
+
 ### 1.1  - 27/09/26
 
 **Features**
