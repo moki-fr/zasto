@@ -126,4 +126,4 @@ Nuitka's log should show you where your compiled file was created, it's often in
 |  Task   |   State   |
 |---------|-----------|
 | Make the C++ scanner compatible with Python | In work (ExpensiveCoal) |
-| Create a GUI version | Not started |
+| Create a GUI version | In work (moki) |
