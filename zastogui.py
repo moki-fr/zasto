@@ -1,7 +1,9 @@
+from utils.fancy import infoPrint
 import zasto
 import customtkinter as ctk
 from PIL import Image
 import time
+
 
 ### COLORS ###
 black = "#0f0f0f"
@@ -27,7 +29,10 @@ root.configure(
     fg_color=black, # the BACKGROUND color and not the foreground took a while to realize this
 )
 root.title(f"Zasto {zasto.VERSION}")
-root.iconbitmap("./assets/ZastoSquare.ico")
+try: # Try statement cuz this line crashes the script on linux
+    root.iconbitmap("./assets/ZastoSquare.ico")
+except:
+    pass
 
 ### WIDGETS ###
 
@@ -65,16 +70,6 @@ settingsBtn = ctk.CTkButton(
     hover_color=black,
     cursor="hand2"
 )
-
-
-
-def boingLogoCuzItsFun(*args):
-    
-    print("Clicked")
-
-        
-
-zastoLogoLabel.bind("<Button-1>", boingLogoCuzItsFun)
 
 ### DISPLAYING ###
 zastoLogoLabel.place(anchor="nw", x=25, y=25)
