@@ -1,5 +1,10 @@
 <img width="3440" height="1147" alt="Zašto" src="https://github.com/user-attachments/assets/06187736-b303-4e4e-a18b-f0b0bb9e187c" />
 
+---
+
+# 🚨 ATTENTION 🚨
+This project is under heavy reconstruction, we migrating to Rust to make this project faster and give it more features
+
 --- 
 
 [![Download Windows](https://img.shields.io/badge/Download-Windows-blue?style=for-the-badge&logo=windows11&logoColor=white)](https://github.com/moki-fr/zasto/releases/latest/download/zasto.exe)
