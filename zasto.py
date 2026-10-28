@@ -4,12 +4,16 @@
 ## IMPORTS ##
 #############
 
-import argparse # Parse command args
-import sys # Detect OS and exit
-import os # Set home directory
+lazy import argparse # Parse command args
+lazy import sys # Detect OS and exit
+lazy import os # Set home directory
 from pathlib import Path # Create config file
-import toml # Config file
+lazy import toml # Config file
 from utils.fancy import * # Fancy prints
+
+from utils import scanner, ai # import the scanner & ai utils
+
+lazy import questionary # Create questionnaries, for selecting which file to delete
 
 ############
 ## CONSTS ##
@@ -105,7 +109,7 @@ parser.add_argument("--ignorelist", metavar="FILE", help="Path to the file that 
 parser.add_argument("--path", help="Recursively scans only one directory (default is root)")
 parser.add_argument("--filelist", default=100, help="Defines how many file are gonna be in the file list that's gonna be transfered to the ai")
 parser.add_argument("--json", metavar="FILE", help="Outputs all the worth-deleting files in a json file instead of showing them in a tui selector")
-parser.add_argument("--force", action="store_true", help="Forces action that are not safe (like overwritting a  JSON file)") 
+parser.add_argument("--force", action="store_true", help="Forces action that are not safe (like overwritting a  JSON file)")
 parser.add_argument("--yes", action="store_true", help="Ignores the y/n prompt")
 parser.add_argument("--scan", action="store_true")
 
@@ -220,9 +224,9 @@ if args.filelist != 100:
 # Gets ignorelist
 jsonStr = "No"
 if args.json != None:
-    
+
     if os.path.exists(args.json): # If file exist
-        
+
         if args.force == False: # If --force is not used
             infoPrint("error", "Error, this file already exists, use '--force' to ignore")
             sys.exit(1)
@@ -238,7 +242,7 @@ if args.json != None:
 
 if args.yes:
     infoPrint("success", "Yes option applied")
-    
+
     if not args.scan: # Warns user in case the command is being used alone
         infoPrint("warning", "Warning: It looks like you're using this command with no other option, \"Yes\" option is not stored in config file.")
 
@@ -275,7 +279,6 @@ if not args.yes: # If --yes is not specified
 # Scans
 
 
-from utils import scanner, ai # import the scanner & ai utils
 
 fileScan = scanner.scan(focusedPath=focusedPath, listPathNumber=filelist)
 
@@ -291,14 +294,14 @@ aiReply = ai.ai(api_key=key, model=model, userPrompt=fileScan)
 
 match args.json: # Do specific action depending on if the JSON option is used
     case None: # If no JSON is specified
-        import questionary # Create questionnaries, for selecting which file to delete
-        
+
+
         choicesToSelect = []
 
         for topFiles in aiReply.strip().splitlines(): # takes
             if not topFiles.strip():
                 continue
-            path, comment, size = topFiles.split("|") 
+            path, comment, size = topFiles.split("|")
             choicesToSelect.append(questionary.Choice(title=path, description=f"{comment} - {size}", value=path)) # Adds every file as a choice, with each path, description and size
 
 
@@ -339,7 +342,7 @@ match args.json: # Do specific action depending on if the JSON option is used
 
 
     case _: # If --json is used
-        
+
         """
         JSON output should look like this:
         {
@@ -356,7 +359,7 @@ match args.json: # Do specific action depending on if the JSON option is used
         for topFiles in aiReply.strip().splitlines():
             if not topFiles.strip():
                 continue
-            path, comment, size = topFiles.split("|") 
+            path, comment, size = topFiles.split("|")
 
             #TODO: Fix bug that make path quadruble backslash for some reason
             jsonOutput[path] = {"size": size, "comment": comment}

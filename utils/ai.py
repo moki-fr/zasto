@@ -1,7 +1,7 @@
 
 import requests
 import json
-import sys
+lazy import sys
 
 SYSTEM_PROMPT = """You're in a tool called Zasto, it's an open source tool to free space, that scans a disks and uses AI to tell if heavy folders are worth keeping or not.
 
