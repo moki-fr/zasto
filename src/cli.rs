@@ -20,12 +20,12 @@ pub struct Args {
     pub ignorelist: Option<String>,
 
     /// Focus a path to scan
-    #[arg(short, long, default_value_t=String::from("/"))]
-    pub path: String,
+    #[arg(short, long)]
+    pub path: Option<String>,
 
     /// Outputs the worth-deleting files in a JSON file rather than showing them in the TUI selector
     #[arg(short, long)]
-    pub json: bool,
+    pub json: Option<String>,
 
     /// Forces action that are not safe (like overwritting a  JSON file)
     #[arg(short, long)]
@@ -42,4 +42,8 @@ pub struct Args {
 
 pub fn parse_args() -> Args {
     Args::parse()
+}
+
+pub fn get_args_number() -> usize {
+    std::env::args().count() - 1
 }
