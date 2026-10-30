@@ -1,4 +1,5 @@
 use owo_colors::OwoColorize;
+use std::io::{self, Write};
 
 const ZASTO_LOGO: &str = r#"
 $$$$$$$$\                      $$\
@@ -49,6 +50,24 @@ pub fn fancy_print(print_type: PrintType, text: &str) {
             text.white()
         ),
     }
+}
+
+pub fn fancy_input(text: &str) -> String {
+    print!(
+        "{}{}{} {}",
+        "[".bold().white(),
+        ">".bold().purple(),
+        "]".bold().white(),
+        text.white()
+    );
+    io::stdout().flush().unwrap();
+
+    let mut input = String::new();
+    io::stdin()
+        .read_line(&mut input)
+        .expect("Failed to read input");
+
+    input.trim().to_string()
 }
 
 pub fn print_zasto_logo() {
