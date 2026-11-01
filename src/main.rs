@@ -1,25 +1,36 @@
+// Fancy custom prints
 mod fancy;
-
-use std::collections::hash_map::{IntoKeys, Keys};
-use std::fs::FileType;
 
 use fancy::PrintType::*;
 use fancy::*;
 
+// Args parsing
 mod cli;
 
+// Path checking for config
+mod config;
+
+// Requesting Openrouter API
 mod ia;
 use ia::*;
 
+// Exiting
 use std::process::*;
 
 fn main() {
+    // Args
     let args = cli::parse_args();
     let args_number = cli::get_args_number();
 
+    if !config::check_config() {
+        fancy_print(InfoPrint, "~/.zasto/ directory not found, creating it...");
+    }
+
+    let zasto_config = config::get_toml_values();
+
     // Vars used by the scanning function
-    let mut key: String = String::from("API_KEY_HERE");
-    let mut model: String = String::from("google/gemma-4-26b-a4b-it");
+    let mut key: String;
+    let mut model: String;
     let mut ignore_list: String;
     let mut path: String;
     let mut json: String;
@@ -43,6 +54,7 @@ fn main() {
                 fancy_print(ErrorPrint, "Cannot store invalid key");
                 fancy_print(InfoPrint, "Use --force to bypass");
             } else {
+                config::change_toml_value(String::from("api_key"), arg_key);
                 fancy_print(SuccessPrint, "Stored key to config files");
                 fancy_print(
                     WarningPrint,
@@ -50,6 +62,7 @@ fn main() {
                 );
             }
         } else {
+            config::change_toml_value(String::from("api_key"), arg_key.clone());
             fancy_print(
                 SuccessPrint,
                 &format!("Stored key {}*****", &arg_key[0..15]),
@@ -57,9 +70,13 @@ fn main() {
         }
     }
 
+    // Making sure that we get the api key from the config before the --key flag so this flag can override the stored key
+    key = zasto_config.api_key;
+
     // Key flag
 
-    let mut key_string: String = String::from("");
+    // This string is the key but cut off and hidden so it can be shown in the logs safely
+    let mut key_string = String::from(&format!("{}*****", &key[0..15]));
 
     if let Some(arg_key) = args.key {
         if arg_key.len() <= 15 {
@@ -93,12 +110,15 @@ fn main() {
 
     // model flag
     if let Some(arg_model) = args.model {
+        config::change_toml_value(String::from("model"), arg_model.clone());
         fancy_print(SuccessPrint, &format!("Changed model to {}", arg_model));
         fancy_print(
             InfoPrint,
             "If you want to set it back to default, set it to google/gemma-4-26b-a4b-it",
         );
     }
+
+    model = zasto_config.model;
 
     // ignorelist flag
     if let Some(arg_ignorelist) = args.ignorelist {
