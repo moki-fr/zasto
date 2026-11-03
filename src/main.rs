@@ -30,9 +30,9 @@ fn main() {
 
     // Vars used by the scanning function
     let mut key: String;
-    let mut model: String;
+    let model: String;
     let mut ignore_list: String;
-    let mut path: String;
+    let path: String;
     let mut json: String;
 
     // If no args
@@ -76,7 +76,14 @@ fn main() {
     // Key flag
 
     // This string is the key but cut off and hidden so it can be shown in the logs safely
-    let mut key_string = String::from(&format!("{}*****", &key[0..15]));
+
+    let mut key_string: String;
+
+    if key.len() >= 15 {
+        key_string = String::from(&format!("{}*****", &key[0..15]));
+    } else {
+        key_string = String::from(&key);
+    }
 
     if let Some(arg_key) = args.key {
         if arg_key.len() <= 15 {
@@ -120,6 +127,8 @@ fn main() {
 
     model = zasto_config.model;
 
+    ignore_list = String::from("");
+
     // ignorelist flag
     if let Some(arg_ignorelist) = args.ignorelist {
         ignore_list = arg_ignorelist.clone();
@@ -145,6 +154,7 @@ fn main() {
     // Json flag
 
     let mut json_string = "No";
+    json = String::from("");
 
     if let Some(arg_json) = args.json {
         json = arg_json.clone();
@@ -166,14 +176,18 @@ fn main() {
         print_zasto_logo();
         println!("Key: {}", key_string);
         println!("Model: {}", model);
-        println!("Ignorelist: ");
-        println!("Focused path: ");
+        println!("Ignorelist: {}", ignore_list);
+        println!("Focused path: {}", path);
         println!("JSON: {}", json_string);
+
+        if 1 == 2 {
+            println!("{}{}{}", ignore_list, json, path);
+        }
 
         let scan_confirmation: String = // Y/n user input
             fancy_input("Do you want to scan with these options ? (Y/n): ");
 
-        if scan_confirmation.to_lowercase() != "y" {
+        if scan_confirmation.to_lowercase() != "y" && scan_confirmation != "" {
             fancy_print(InfoPrint, "Aborting");
             return;
         }
@@ -182,15 +196,21 @@ fn main() {
         fancy_print(InfoPrint, "Checking API key");
 
         match check_api_key(&key) {
+            // Check API Key
             Ok(key_state) => {
                 if !key_state {
+                    // if key is wrong
                     fancy_print(ErrorPrint, "Key is invalid");
                     exit(1);
                 }
             }
             Err(error) => {
+                // error with internet or Openrouter
                 fancy_print(ErrorPrint, "Communication error");
-                fancy_print(ErrorPrint, &error.to_string());
+                fancy_print(
+                    ErrorPrint,
+                    &format!("Here is the Rust exact error:\n{}", &error.to_string()),
+                );
                 fancy_print(InfoPrint, "Consider checking your internet settings");
                 fancy_print(
                     InfoPrint,

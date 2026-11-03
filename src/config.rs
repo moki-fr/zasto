@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::{env, fs};
 
 use serde::{Deserialize, Serialize};
@@ -9,10 +9,17 @@ pub struct Config {
     pub model: String,
 }
 
+pub fn get_config_file() -> PathBuf {
+    let home = env::var("HOME").expect("HOME directory not found");
+    let folder = Path::new(&home).join(".zasto");
+    let config_file_path = folder.join("config.toml");
+
+    config_file_path
+}
+
 pub fn check_config() -> bool {
     let home = env::var("HOME").expect("HOME directory not found");
     let folder = Path::new(&home).join(".zasto");
-    let config_file_path = Path::new("~/.zasto/config.toml");
 
     if !folder.exists() {
         fs::create_dir_all(&folder).expect("Failed to create Zasto directory");
@@ -25,7 +32,7 @@ pub fn check_config() -> bool {
         let toml_string =
             toml::to_string_pretty(&default_config).expect("Failed to serialize config");
 
-        fs::write(config_file_path, toml_string).expect("Failed to create config file");
+        fs::write(get_config_file(), toml_string).expect("Failed to create config file");
 
         false
     } else {
@@ -34,7 +41,7 @@ pub fn check_config() -> bool {
 }
 
 pub fn get_toml_values() -> Config {
-    let toml_str = fs::read_to_string("~/.zasto/config.toml").expect("Failed to read config");
+    let toml_str = fs::read_to_string(get_config_file()).expect("Failed to read config");
 
     let config: Config = toml::from_str(&toml_str)
         .expect("Failed to parse TOML config, try to delete ~/.zasto/ directory");
@@ -43,12 +50,12 @@ pub fn get_toml_values() -> Config {
 }
 
 pub fn change_toml_value(entry: String, value: String) {
-    let toml_str = fs::read_to_string("~/.zasto/config.toml").expect("Failed to read config");
+    let toml_str = fs::read_to_string(get_config_file()).expect("Failed to read config");
     let mut config: toml::Value = toml::from_str(&toml_str).expect("Failed to parse config");
 
     config[entry] = toml::Value::String(value);
 
     let updated_toml = toml::to_string_pretty(&config).expect("Failed to serialize config");
 
-    fs::write("~/.zasto/config.toml", updated_toml).expect("Failed to write config");
+    fs::write(get_config_file(), updated_toml).expect("Failed to write config");
 }
