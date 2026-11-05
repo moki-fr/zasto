@@ -17,6 +17,10 @@ use ia::*;
 // Exiting
 use std::process::*;
 
+mod scanner;
+
+use std::{fs, path::Path};
+
 fn main() {
     // Args
     let args = cli::parse_args();
@@ -219,5 +223,10 @@ fn main() {
                 exit(1);
             }
         }
+
+        fancy_print(InfoPrint, "Starting scanner");
+        let scan_output = scanner::scan(Path::new("/"), 2, Path::new("/"));
+
+        println!("{:?}", scan_output);
     }
 }
