@@ -11,6 +11,7 @@ pub fn scanner(start_dir: &Path) -> Vec<String> {
         if file_type.is_file() {
             let size = entry.metadata().unwrap().len();
             table.push(format!("{} {}", entry.path().display(), size));
+            println!("{:?}", entry.path().into_string());
 
         } else if file_type.is_dir() {
             table.extend(scanner(&entry.path()));
