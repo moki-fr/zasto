@@ -225,7 +225,7 @@ fn main() {
         }
 
         fancy_print(InfoPrint, "Starting scanner");
-        let scan_output = scanner::scan(Path::new("/"), 2, Path::new("/"));
+        let scan_output = scanner::scanner(Path::new("/home/moki/"));
 
         println!("{:?}", scan_output);
     }
