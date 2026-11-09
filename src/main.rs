@@ -19,7 +19,7 @@ use std::process::*;
 
 mod scanner;
 
-use std::{fs, path::Path};
+use std::path::Path;
 
 fn main() {
     // Args
@@ -213,7 +213,7 @@ fn main() {
                 fancy_print(ErrorPrint, "Communication error");
                 fancy_print(
                     ErrorPrint,
-                    &format!("Here is the Rust exact error:\n{}", &error.to_string()),
+                    &format!("Here is the Rust exact error:\n{}", error),
                 );
                 fancy_print(InfoPrint, "Consider checking your internet settings");
                 fancy_print(
@@ -225,7 +225,7 @@ fn main() {
         }
 
         fancy_print(InfoPrint, "Starting scanner");
-        let scan_output = scanner::scanner(Path::new("/home/moki/"));
+        let scan_output = scanner::scanner(Path::new("/"));
 
         println!("{:?}", scan_output);
     }
