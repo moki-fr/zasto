@@ -83,4 +83,19 @@ pub fn scanner(start_dir: &Path) -> HashMap<String, u64> {
     table
 }
 
-fn sort_results(scan_output: Vec<String>) {}
+pub fn sort_results(
+    scan_result: &HashMap<String, u64>,
+    scan_output_lenght: usize,
+) -> HashMap<&String, &u64> {
+    let mut entries: Vec<_> = scan_result.iter().collect();
+
+    entries.sort_unstable_by_key(|&(_, size)| std::cmp::Reverse(*size));
+
+    let mut first_values: HashMap<&String, &u64> = HashMap::new();
+
+    for (path, size) in entries.iter().take(scan_output_lenght) {
+        first_values.insert(path, size);
+    }
+
+    first_values
+}

@@ -25,7 +25,7 @@ pub struct Args {
 
     /// Number of file that will be given to the AI
     #[arg(long, default_value_t = 100)]
-    pub scanoutputlenght: u32,
+    pub scanoutputlenght: usize,
 
     /// Outputs the worth-deleting files in a JSON file rather than showing them in the TUI selector
     #[arg(short, long)]

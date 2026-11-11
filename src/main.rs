@@ -227,8 +227,13 @@ fn main() {
         fancy_print(InfoPrint, "Starting scanner");
         let scan_output = scanner::scanner(Path::new("/"));
 
-        for (path, size) in scan_output {
-            println!("{} | {}", path, size);
-        }
+        fancy_print(SuccessPrint, "Scan complete");
+
+        fancy_print(InfoPrint, "Sorting results");
+
+        let sorted_scan_output = scanner::sort_results(&scan_output, 100);
+
+        fancy_print(SuccessPrint, "Sort complete");
+        fancy_print(InfoPrint, "Contacting IA...");
     }
 }
