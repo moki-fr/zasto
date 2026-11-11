@@ -1,14 +1,18 @@
 use std::{
+    collections::HashMap,
     fs,
     path::{Path, PathBuf},
 };
 
-pub fn scanner(start_dir: &Path) -> Vec<String> {
-    let mut table = Vec::new();
+// Hashmap for Path and size in bytes
+pub fn scanner(start_dir: &Path) -> HashMap<String, u64> {
+    let mut table = HashMap::new();
     let entries = fs::read_dir(start_dir);
 
     let default_ignore_list: [PathBuf; 8] = [
+        // WIN
         PathBuf::from("C:/Windows/"),
+        // LNX
         PathBuf::from("/proc/"),
         PathBuf::from("/dev/"),
         PathBuf::from("/run/"),
@@ -45,7 +49,7 @@ pub fn scanner(start_dir: &Path) -> Vec<String> {
 
                     match size {
                         Ok(s) => {
-                            table.push(format!("{} {}", entry.path().display(), s.len()));
+                            table.insert(entry.path().display().to_string(), s.len());
                             //println!("{:?}", entry.path().into_string());
                         }
                         Err(_) => {
@@ -78,3 +82,5 @@ pub fn scanner(start_dir: &Path) -> Vec<String> {
 
     table
 }
+
+fn sort_results(scan_output: Vec<String>) {}

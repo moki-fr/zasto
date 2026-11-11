@@ -225,6 +225,10 @@ fn main() {
         }
 
         fancy_print(InfoPrint, "Starting scanner");
-        let _scan_output = scanner::scanner(Path::new("/"));
+        let scan_output = scanner::scanner(Path::new("/"));
+
+        for (path, size) in scan_output {
+            println!("{} | {}", path, size);
+        }
     }
 }
