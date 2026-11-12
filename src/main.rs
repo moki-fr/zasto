@@ -235,5 +235,12 @@ fn main() {
 
         fancy_print(SuccessPrint, "Sort complete");
         fancy_print(InfoPrint, "Contacting IA...");
+
+        let _ai_response = ai(&key, &model, &format!("{:?}", sorted_scan_output));
+
+        match _ai_response {
+            Err(e) => println!("{}", e),
+            Ok(s) => println!("{}", s),
+        }
     }
 }
