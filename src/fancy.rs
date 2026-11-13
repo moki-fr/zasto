@@ -20,35 +20,64 @@ pub enum PrintType {
 }
 
 pub fn fancy_print(print_type: PrintType, text: &str) {
+    fancy_print_full(print_type, text, false);
+}
+
+pub fn fancy_print_full(print_type: PrintType, text: &str, replaceable: bool) {
+    let replacement_suffix: String; // \n or not
+
+    if replaceable {
+        replacement_suffix = String::from("");
+    } else {
+        replacement_suffix = String::from("\n");
+    }
+
     match print_type {
-        PrintType::SuccessPrint => println!(
-            "{}{}{} {}",
-            "[".bold().white(),
-            "+".bold().green(),
-            "]".bold().white(),
-            text.white()
-        ),
-        PrintType::InfoPrint => println!(
-            "{}{}{} {}",
-            "[".bold().white(),
-            "i".bold().cyan(),
-            "]".bold().white(),
-            text.white()
-        ),
-        PrintType::WarningPrint => println!(
-            "{}{}{} {}",
-            "[".bold().white(),
-            "!".bold().yellow(),
-            "]".bold().white(),
-            text.white()
-        ),
-        PrintType::ErrorPrint => println!(
-            "{}{}{} {}",
-            "[".bold().white(),
-            "X".bold().red(),
-            "]".bold().white(),
-            text.white()
-        ),
+        PrintType::SuccessPrint => {
+            print!(
+                "\r\x1b[2K{}{}{} {}{}",
+                "[".bold().white(),
+                "+".bold().green(),
+                "]".bold().white(),
+                text.white(),
+                replacement_suffix
+            );
+            io::stdout().flush().unwrap();
+        }
+        PrintType::InfoPrint => {
+            print!(
+                "\r\x1b[2K{}{}{} {}{}",
+                "[".bold().white(),
+                "i".bold().cyan(),
+                "]".bold().white(),
+                text.white(),
+                replacement_suffix
+            );
+            io::stdout().flush().unwrap();
+        }
+        PrintType::WarningPrint => {
+            print!(
+                "\r\x1b[2K{}{}{} {}{}",
+                "[".bold().white(),
+                "!".bold().yellow(),
+                "]".bold().white(),
+                text.white(),
+                replacement_suffix
+            );
+            io::stdout().flush().unwrap();
+        }
+
+        PrintType::ErrorPrint => {
+            print!(
+                "\r\x1b[2K{}{}{} {}{}",
+                "[".bold().white(),
+                "X".bold().red(),
+                "]".bold().white(),
+                text.white(),
+                replacement_suffix
+            );
+            io::stdout().flush().unwrap();
+        }
     }
 }
 

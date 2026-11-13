@@ -208,7 +208,7 @@ fn main() {
         }
         fancy_print(InfoPrint, "Beginning scan now");
 
-        fancy_print(InfoPrint, "Checking API key");
+        fancy_print_full(InfoPrint, "Checking API key", true);
 
         match check_api_key(&key) {
             // Check API Key
@@ -217,6 +217,8 @@ fn main() {
                     // if key is wrong
                     fancy_print(ErrorPrint, "Key is invalid");
                     exit(1);
+                } else {
+                    fancy_print(SuccessPrint, "Key is valid");
                 }
             }
             Err(error) => {
@@ -235,12 +237,12 @@ fn main() {
             }
         }
 
-        fancy_print(InfoPrint, "Starting scanner");
+        fancy_print_full(InfoPrint, "Starting scanner", true);
         let scan_output = scanner::scanner(Path::new("/"));
 
         fancy_print(SuccessPrint, "Scan complete");
 
-        fancy_print(InfoPrint, "Sorting results");
+        fancy_print_full(InfoPrint, "Sorting results", true);
 
         let sorted_scan_output = scanner::sort_results(&scan_output, 100);
 
