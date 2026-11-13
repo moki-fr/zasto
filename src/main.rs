@@ -30,7 +30,18 @@ fn main() {
         fancy_print(InfoPrint, "~/.zasto/ directory not found, creating it...");
     }
 
-    let zasto_config = config::get_toml_values();
+    let zasto_config: config::Config;
+
+    match config::get_toml_values() {
+        Ok(c) => zasto_config = c,
+        Err(_) => {
+            fancy_print(
+                ErrorPrint,
+                "Encontered and error while reading throught your config file, try deleting ~/.zasto/ directory to reset it",
+            );
+            return;
+        }
+    }
 
     // Vars used by the scanning function
     let mut key: String;

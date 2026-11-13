@@ -1,3 +1,4 @@
+use std::error::Error;
 use std::path::{Path, PathBuf};
 use std::{env, fs};
 
@@ -40,13 +41,12 @@ pub fn check_config() -> bool {
     }
 }
 
-pub fn get_toml_values() -> Config {
-    let toml_str = fs::read_to_string(get_config_file()).expect("Failed to read config");
+pub fn get_toml_values() -> Result<Config, Box<dyn Error>> {
+    let toml_str = fs::read_to_string(get_config_file())?;
 
-    let config: Config = toml::from_str(&toml_str)
-        .expect("Failed to parse TOML config, try to delete ~/.zasto/ directory");
+    let config: Config = toml::from_str(&toml_str)?;
 
-    config
+    Ok(config)
 }
 
 pub fn change_toml_value(entry: String, value: String) {
