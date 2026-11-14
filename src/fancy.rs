@@ -17,6 +17,7 @@ pub enum PrintType {
     InfoPrint,
     WarningPrint,
     ErrorPrint,
+    ProgressPrint,
 }
 
 pub fn fancy_print(print_type: PrintType, text: &str) {
@@ -75,6 +76,17 @@ pub fn fancy_print_full(print_type: PrintType, text: &str, replaceable: bool) {
                 "\r\x1b[2K{}{}{} {}{}",
                 "[".bold().white(),
                 "X".bold().red(),
+                "]".bold().white(),
+                text.white(),
+                replacement_suffix
+            );
+            io::stdout().flush().unwrap();
+        }
+        PrintType::ProgressPrint => {
+            print!(
+                "\r\x1b[2K{}{}{} {}{}",
+                "[".bold().white(),
+                "-".bold().yellow(),
                 "]".bold().white(),
                 text.white(),
                 replacement_suffix

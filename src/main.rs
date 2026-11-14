@@ -19,6 +19,7 @@ use std::process::*;
 
 mod scanner;
 
+use inquire::*; // select menus
 use std::path::Path;
 
 fn main() {
@@ -218,7 +219,7 @@ fn main() {
 
         fancy_print(InfoPrint, "Beginning scan now");
 
-        fancy_print_full(InfoPrint, "Checking API key", true);
+        fancy_print_full(ProgressPrint, "Checking API key", true);
 
         match check_api_key(&key) {
             // Check API Key
@@ -247,23 +248,43 @@ fn main() {
             }
         }
 
-        fancy_print_full(InfoPrint, "Starting scanner", true);
+        fancy_print_full(ProgressPrint, "Starting scanner", true);
         let scan_output = scanner::scanner(Path::new("/"));
 
         fancy_print(SuccessPrint, "Scan complete");
 
-        fancy_print_full(InfoPrint, "Sorting results", true);
+        fancy_print_full(ProgressPrint, "Sorting results", true);
 
         let sorted_scan_output = scanner::sort_results(&scan_output, 100);
 
         fancy_print(SuccessPrint, "Sort complete");
-        fancy_print(InfoPrint, "Contacting IA...");
+        fancy_print_full(ProgressPrint, "Contacting AI...", true);
 
-        let _ai_response = ai(&key, &model, &format!("{:?}", sorted_scan_output));
+        let ai_response = ai(&key, &model, &format!("{:?}", sorted_scan_output));
 
-        match _ai_response {
-            Err(e) => println!("{}", e),
-            Ok(s) => println!("{}", s),
+        let path_list: String;
+
+        match ai_response {
+            Err(_) => {
+                fancy_print(ErrorPrint, "AI Contacting Error");
+                exit(1);
+            }
+            Ok(s) => {
+                fancy_print(SuccessPrint, "AI response received");
+                path_list = s;
+            }
         }
+
+        let _worth_deleting_paths: Vec<&str> = Vec::new(); // actual paths that will be deleted
+        let displayed_path: Vec<&str> = Vec::new(); // paths to be displayed in the selection menu
+
+        for line in path_list.lines() {
+            let parts: Vec<&str> = line.split('|').collect();
+
+            displayed_path.join(&format!("{}: {} ({})", parts[0], parts[1], parts[2]));
+            println!("{}: {} ({})", parts[0], parts[1], parts[2]);
+        }
+        let _selected_paths = MultiSelect::new("Select paths", displayed_path).prompt();
+        // Still fixing
     }
 }
