@@ -32,6 +32,9 @@ pub fn fancy_print_full(print_type: PrintType, text: &str, replaceable: bool) {
         replacement_suffix = String::from("\n");
     }
 
+    // \r is for replacing the line
+    // \x1b[2K is for erasing the line in some case the previous line was longer that the newer and wont erase the last chars without this backslash pattern
+
     match print_type {
         PrintType::SuccessPrint => {
             print!(

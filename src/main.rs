@@ -49,6 +49,7 @@ fn main() {
     let mut ignore_list: String;
     let path: String;
     let mut json: String;
+    let yes: bool;
 
     // If no args
     if args_number == 0 {
@@ -60,6 +61,13 @@ fn main() {
     // Force flag
     if args.force {
         fancy_print(WarningPrint, "Force option is used");
+    }
+
+    // Yes flag
+    if args.yes {
+        yes = true;
+    } else {
+        yes = false;
     }
 
     // Storekey flag
@@ -198,14 +206,16 @@ fn main() {
         if 1 == 2 {
             println!("{}{}{}", ignore_list, json, path);
         }
+        if !yes {
+            let scan_confirmation: String = // Y/n user input
+                fancy_input("Do you want to scan with these options ? (Y/n): ");
 
-        let scan_confirmation: String = // Y/n user input
-            fancy_input("Do you want to scan with these options ? (Y/n): ");
-
-        if scan_confirmation.to_lowercase() != "y" && scan_confirmation != "" {
-            fancy_print(InfoPrint, "Aborting");
-            return;
+            if scan_confirmation.to_lowercase() != "y" && scan_confirmation != "" {
+                fancy_print(InfoPrint, "Aborting");
+                return;
+            }
         }
+
         fancy_print(InfoPrint, "Beginning scan now");
 
         fancy_print_full(InfoPrint, "Checking API key", true);
