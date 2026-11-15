@@ -49,7 +49,9 @@ pub fn check_api_key(api_key: &str) -> Result<bool, reqwest::Error> {
 }
 
 pub fn ai(api_key: &str, model: &str, scan_result: &str) -> Result<String, Box<dyn Error>> {
-    let client = Client::new();
+    let client = Client::builder()
+        .timeout(std::time::Duration::from_secs(120)) //prevents timeout
+        .build()?;
 
     let request_body = json!({
         "model": model,

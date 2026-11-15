@@ -313,16 +313,23 @@ fn main() {
             exit(0);
         }
 
+        let mut failed_deletions: Vec<String> = Vec::new();
+
         for line in selected_paths {
-            let file_to_delete: String = line.split(':').next().unwrap().to_string();
+            let file_to_delete: String = line
+                .split(':') // get the first part aka path
+                .next()
+                .unwrap()
+                .trim()
+                .trim_matches('"') // remove quotes
+                .to_string();
 
             fancy_print_full(ProgressPrint, &format!("Deleting {}", file_to_delete), true);
 
-            let mut failed_deletions: Vec<String> = Vec::new();
-
             match fs::remove_file(&file_to_delete) {
-                Err(_) => {
+                Err(e) => {
                     fancy_print(ErrorPrint, &format!("Failed to delete {}", file_to_delete));
+                    println!("ERR: {}", e);
                     failed_deletions.push(file_to_delete);
                 }
                 Ok(_) => {

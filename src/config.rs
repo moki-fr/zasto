@@ -11,7 +11,13 @@ pub struct Config {
 }
 
 pub fn get_config_file() -> PathBuf {
-    let home = env::var("HOME").expect("HOME directory not found");
+    // if su, env::var("HOME") becomes / and not /home/user, this home var is fixing this
+    let home = if let Ok(user) = env::var("SUDO_USER") {
+        PathBuf::from("/home").join(user)
+    } else {
+        PathBuf::from(env::var("HOME").expect("HOME not found"))
+    };
+
     let folder = Path::new(&home).join(".zasto");
     let config_file_path = folder.join("config.toml");
 
@@ -19,7 +25,12 @@ pub fn get_config_file() -> PathBuf {
 }
 
 pub fn check_config() -> bool {
-    let home = env::var("HOME").expect("HOME directory not found");
+    let home = if let Ok(user) = env::var("SUDO_USER") {
+        PathBuf::from("/home").join(user)
+    } else {
+        PathBuf::from(env::var("HOME").expect("HOME not found"))
+    };
+
     let folder = Path::new(&home).join(".zasto");
 
     if !folder.exists() {
