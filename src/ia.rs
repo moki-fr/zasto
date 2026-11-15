@@ -1,3 +1,5 @@
+use std::error::Error;
+
 use reqwest::blocking::Client;
 use serde_json::json;
 
@@ -46,9 +48,8 @@ pub fn check_api_key(api_key: &str) -> Result<bool, reqwest::Error> {
     Ok(response.status().is_success())
 }
 
-pub fn ai(api_key: &str, model: &str, scan_result: &str) -> Result<String, reqwest::Error> {
+pub fn ai(api_key: &str, model: &str, scan_result: &str) -> Result<String, Box<dyn Error>> {
     let client = Client::new();
-    // Your API key should be set in the environment
 
     let request_body = json!({
         "model": model,
@@ -58,15 +59,18 @@ pub fn ai(api_key: &str, model: &str, scan_result: &str) -> Result<String, reqwe
         ]
     });
 
-    // Example API request
     let response = client
         .post("https://openrouter.ai/api/v1/chat/completions")
         .bearer_auth(api_key)
         .json(&request_body)
         .send()?;
 
-    let output: serde_json::Value = response.json()?;
+    let _status = response.status();
+    let body = response.text()?;
 
+    let output: serde_json::Value = serde_json::from_str(&body)?;
+
+    // output the message only
     let content = &output["choices"][0]["message"]["content"];
 
     let content = content.as_str().unwrap_or("").to_string();
