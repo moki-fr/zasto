@@ -1,24 +1,11 @@
 <img width="3440" height="1147" alt="Zašto" src="https://github.com/user-attachments/assets/06187736-b303-4e4e-a18b-f0b0bb9e187c" />
 
----
-
-# 🚨 ATTENTION 🚨
-This project is under heavy reconstruction, we migrating to Rust to make this project faster and give it more features
-
---- 
-
-[![Download Windows](https://img.shields.io/badge/Download-Windows-blue?style=for-the-badge&logo=windows11&logoColor=white)](https://github.com/moki-fr/zasto/releases/latest/download/zasto.exe)
-[![Download Linux](https://img.shields.io/badge/Download-Linux-brightgreen?style=for-the-badge&logo=linux&logoColor=white)](https://github.com/moki-fr/zasto/releases/latest/download/zasto)
-
-v1.2
-
-Made in France 💙🤍❤️
+# ATTENTION
+Since this project has been rebuilt in Rust, some features might not work or are not implemented **yet**
 
 ---
 
-Zašto is an open source AI powered tool to help you analyze your disks easily ! 
-Zašto is made to work on both Linux and Windows ! 
-Zašto is 100% human made, no AI is used in the code.
+Zasto is an open-source all-in-one disk cleaning tool, built in Rust, powered by AI to analyze your disks easily for you ! Works on Linux and Windows, and is 100% human made, no AI is used while coding this project !
 
 ---
 
@@ -30,21 +17,11 @@ Zašto is 100% human made, no AI is used in the code.
 
 ---
 
-# Infos and prerequisites
-
-The project is built with python 3.1x+ and C++ 
-
-|      Language      |    Why         |
-|--------------------|----------------|
-| Python             | Easier to use for our cli-tui base and for Openrouter's API |
-| C++/Rust | As Zasto uses a scanner to gather information on your disk, C++/Rust would make this process faster especially on HDDs |  
- 
 
 
-## Prerequisites
+# Prerequisites
 
-- Python 3.10 or above
-- *Optional:* a C++ compiler
+- Rust (cargo, rustc...)
 - A Openrouter API Key (it's free and easy to get)
 
 > [Click here to get your free API key](HOWDOIGETMYAPIKEY.md)
@@ -52,16 +29,18 @@ The project is built with python 3.1x+ and C++
 # How to use
 
 You can either:
-- Execute the binaries on the release page (not updated for now)
-- Run the main script zasto.py as well as making sure you have all the depedencies (`pip install -r requirements.txt`)
+- Execute the binaries on the release page
+- Compile zasto from its source with `cargo build`
 
-*If you want to run the C++ scanner, you'll also have to compile it first and run it with python*
+Once you've got your zasto binary, you can use it:
 
 ```
-python zasto.py [command]
+zasto [command]
 ```
 
 If no command is set, it will bring you to the help page.
+
+*hint: OR means Openrouter*
 
 | Command | Argument | Description |
 |-----------|-----------|-----------|
@@ -73,7 +52,7 @@ If no command is set, it will bring you to the help page.
 | `--path` | Directory path | Sets a path where you want the script to check, only for this command |
 | `--filelist` | Number (int) | Sets the number of file that will be given to the AI |
 | `--json` | Output file path | Outputs the worth-deleting files in a JSON file instead of showing them in the TUI selector |
-| `--force` | None | Forces some options (works with: `--json`) |
+| `--force` | None | Forces unsafe options (like overriding a JSON output file...) |
 | `--yes` | None | Skips y/n prompt |
 | `--scan` | None | Starts scanning |
 
@@ -81,54 +60,10 @@ If no command is set, it will bring you to the help page.
 If you're too lazy to understand all this, you can just run these commands: 
 
 ```
-python ./zasto.py --storekey <API_KEY_HERE> # Only once to store the key in config file
-python ./zasto.py --scan
+zasto --storekey <API_KEY_HERE> # Only once to store the key in config file
+zasto --scan
 ```
 or just
 ```
-python ./zasto.py --storekey <API_KEY_HERE> --scan
+zasto --storekey <API_KEY_HERE> --scan
 ```
-
-## How to build
-
-The releases are built with nuitka since Zasto 1.2, since it provides faster code execution and lighter file output size.
-You can still package the project with pyinstaller, but the output will be slower and heavier.
- 
-### 1. Create venv (recommended)
-
-```
-python -m venv venv
-```
-
-Then activate the venv, command changes depending on your OS and shell, here's an example for Linux on Fish shell
-
-```
-source /venv/bin/activate.fish
-```
-
-### 2. Install requirements & nuitka
-
-```
-pip install -r requirements.txt
-```
-
-```
-pip install nuitka
-```
-
-### 3. Build with Nuitka
-
-```
-python -m nuitka zasto.py --onefile
-```
-
-This can take about 3-10 min depending on your hardware
-Nuitka's log should show you where your compiled file was created, it's often in Zasto's folder
-
-
-## To do
-
-|  Task   |   State   |
-|---------|-----------|
-| Make the C++ scanner compatible with Python | In work (ExpensiveCoal) |
-| Create a GUI version | In work (moki) |

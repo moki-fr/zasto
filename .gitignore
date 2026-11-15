@@ -12,3 +12,7 @@ lib
 utils/__pycache__
 zasto.*/
 zasto.exe
+
+# Added by cargo
+
+/target
