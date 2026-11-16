@@ -1,4 +1,0 @@
-rich
-requests
-questionary
-toml

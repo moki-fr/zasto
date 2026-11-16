@@ -13,6 +13,7 @@ mod config;
 // Requesting Openrouter API
 mod ia;
 use ia::*;
+use toml::ser::Error;
 
 // Exiting
 use std::{fs, io::ErrorKind::FileTooLarge, process::*};
@@ -246,7 +247,16 @@ fn main() {
         }
 
         fancy_print_full(ProgressPrint, "Starting scanner", true);
-        let scan_output = scanner::scanner(Path::new("/"));
+
+        if !Path::new(&path).exists() {
+            fancy_print(
+                ErrorPrint,
+                "Your focused path doesn't exist, please check again",
+            );
+            exit(1);
+        }
+
+        let scan_output = scanner::scanner(Path::new(&path));
 
         fancy_print(SuccessPrint, "Scan complete");
 
@@ -272,6 +282,15 @@ fn main() {
                 exit(1);
             }
             Ok(s) => {
+                if s.to_lowercase() == "ai_thinking_error" {
+                    // catch if the ai fails to think
+                    fancy_print(ErrorPrint, "AI thinking error");
+                    fancy_print(
+                        InfoPrint,
+                        "This usually happens when the ai fails to understand something in the prompt, therefore this is a pretty uncommon error so you should retry scanning, if it fails multiple time, first check your selected path, if you think it is correct, you should open an issue here: https://github.com/moki-fr/zasto",
+                    );
+                    exit(1);
+                }
                 fancy_print(SuccessPrint, "AI response received");
                 path_list = s;
             }
@@ -304,7 +323,7 @@ fn main() {
         }
 
         let user_confirmation = fancy_input(&format!(
-            "Are you sure to delete these {} files ? (y/N)",
+            "Are you sure to delete these {} files ? (y/N): ",
             selected_paths.iter().len()
         ));
 
@@ -327,15 +346,27 @@ fn main() {
             fancy_print_full(ProgressPrint, &format!("Deleting {}", file_to_delete), true);
 
             match fs::remove_file(&file_to_delete) {
-                Err(e) => {
+                Err(_) => {
                     fancy_print(ErrorPrint, &format!("Failed to delete {}", file_to_delete));
-                    println!("ERR: {}", e);
                     failed_deletions.push(file_to_delete);
                 }
                 Ok(_) => {
                     fancy_print(SuccessPrint, &format!("Deleted {}", file_to_delete));
                 }
             }
+        }
+        if !failed_deletions.is_empty() {
+            fancy_print(
+                InfoPrint,
+                "\nSome files couldn't be deleted, you can use this command to delete them all as root (on Linux for now)\n",
+            );
+            println!("```");
+            print!("sudo rm -f ");
+
+            for file in &failed_deletions {
+                print!("\"{}\" ", file);
+            }
+            print!("\n```");
         }
     }
 }
