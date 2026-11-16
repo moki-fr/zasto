@@ -13,10 +13,9 @@ mod config;
 // Requesting Openrouter API
 mod ia;
 use ia::*;
-use toml::ser::Error;
 
 // Exiting
-use std::{fs, io::ErrorKind::FileTooLarge, process::*};
+use std::{fs, process::*};
 
 mod scanner;
 
@@ -183,9 +182,37 @@ fn main() {
 
     if let Some(arg_json) = args.json {
         json = arg_json.clone();
-        fancy_print(SuccessPrint, &format!("Outputting JSON at {}", arg_json));
 
         json_string = "Yes";
+
+        if Path::new(&json).exists() {
+            // if json path already exists
+            if args.force {
+                fancy_print(
+                    WarningPrint,
+                    "Output JSON file already exists, overriding it",
+                );
+            } else {
+                fancy_print(
+                    ErrorPrint,
+                    "The selected output JSON path already exists, use --force to bypass",
+                );
+            }
+        }
+        // try creating the complete path for the JSON output
+        match fs::create_dir_all(Path::new(&json).parent().unwrap()) {
+            Err(e) => {
+                fancy_print(
+                    ErrorPrint,
+                    "Couln't create path through the JSON output file",
+                );
+                fancy_print(InfoPrint, &format!("Rust error: {}", e));
+                exit(1);
+            }
+            Ok(_) => {
+                fancy_print(SuccessPrint, &format!("Outputting JSON at {}", arg_json));
+            }
+        }
 
         if !args.scan {
             fancy_print(
@@ -249,6 +276,7 @@ fn main() {
         fancy_print_full(ProgressPrint, "Starting scanner", true);
 
         if !Path::new(&path).exists() {
+            // if focused path is invalid
             fancy_print(
                 ErrorPrint,
                 "Your focused path doesn't exist, please check again",
