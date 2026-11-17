@@ -1,18 +1,11 @@
 use std::{
     collections::HashMap,
-    fs,
     path::{Path, PathBuf},
 };
 
-// Hashmap for Path and size in bytes
-pub fn scanner(start_dir: &Path) -> HashMap<String, u64> {
-    let mut table = HashMap::new();
-    let entries = fs::read_dir(start_dir);
-
+pub fn scan(start_dir: &Path) -> HashMap<String, u64> {
     let default_ignore_list: [PathBuf; 8] = [
-        // WIN
         PathBuf::from("C:/Windows/"),
-        // LNX
         PathBuf::from("/proc/"),
         PathBuf::from("/dev/"),
         PathBuf::from("/run/"),
@@ -22,61 +15,27 @@ pub fn scanner(start_dir: &Path) -> HashMap<String, u64> {
         PathBuf::from("/media/"),
     ];
 
-    match entries {
-        Ok(dirs) => {
-            for entry in dirs {
-                let entry = entry.unwrap();
-                let file_type = entry.file_type().unwrap();
-                let mut is_ignored: bool = false; // if a file doesnt pass the filters then turn this to true
+    let mut table = HashMap::new();
 
-                if file_type.is_file() {
-                    // loops all the ignored paths in the list
+    for entry in jwalk::WalkDir::new(start_dir) {
+        let entry = match entry {
+            Ok(entry) => entry,
+            Err(_) => continue,
+        };
 
-                    for i in &default_ignore_list {
-                        // if it contains
-                        if entry.path().starts_with(i) {
-                            // then skip
-                            is_ignored = true;
-                            break;
-                        }
-                    }
-                    if is_ignored {
-                        // skip
-                        continue;
-                    }
+        let path = entry.path();
 
-                    let size = entry.metadata();
-
-                    match size {
-                        Ok(s) => {
-                            table.insert(entry.path().display().to_string(), s.len());
-                            //println!("{:?}", entry.path().into_string());
-                        }
-                        Err(_) => {
-                            //
-                        }
-                    }
-                } else if file_type.is_dir() {
-                    for i in &default_ignore_list {
-                        // if it contains
-                        if entry.path().starts_with(i) {
-                            // then skip
-                            is_ignored = true;
-                            break;
-                        }
-                    }
-
-                    if is_ignored {
-                        // skip
-                        continue;
-                    }
-
-                    table.extend(scanner(&entry.path()));
-                }
-            }
+        if default_ignore_list
+            .iter()
+            .any(|ignored| path.starts_with(ignored))
+        {
+            continue;
         }
-        Err(_) => {
-            //
+
+        if entry.file_type().is_file() {
+            if let Ok(metadata) = entry.metadata() {
+                table.insert(path.to_string_lossy().into_owned(), metadata.len());
+            }
         }
     }
 

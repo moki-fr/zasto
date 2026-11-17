@@ -2,6 +2,29 @@
 
 ---
 
+### 0.2.0
+
+**Features**
+- 733% faster scanner by using jwalk
+- New logos and randomization added to fancy module
+
+**Notes**
+The older scanner was scanning recursively each directory and ignoring, now were using the `jwalk` crate, which divide the scan to multiple thread.
+For reference, the older scanner took 22s to scan my disk (about 1.6M files), it now takes 3s, so it's about 7.33 times faster.
+Now we can really feel like this tool doesnt need patience to help, I'm so happy to have made this way much faster.
+
+---
+
+### 0.1.0
+
+**BIG UPDATE !!!**
+- Rust migration
+
+**Notes**
+Some features are still not implemented but most of basic features are in there
+
+---
+
 ### 1.2  - 05/10/26
 
 **Features**

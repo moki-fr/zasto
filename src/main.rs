@@ -284,7 +284,8 @@ fn main() {
             exit(1);
         }
 
-        let scan_output = scanner::scanner(Path::new(&path));
+        //let scan_output = scanner::scanner(Path::new(&path));
+        let scan_output = scanner::scan(Path::new(&path));
 
         fancy_print(SuccessPrint, "Scan complete");
 
