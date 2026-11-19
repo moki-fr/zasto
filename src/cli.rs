@@ -51,3 +51,5 @@ pub fn parse_args() -> Args {
 pub fn get_args_number() -> usize {
     std::env::args().count() - 1
 }
+
+pub fn print_help() {}

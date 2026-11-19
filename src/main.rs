@@ -291,7 +291,7 @@ fn main() {
 
         fancy_print_full(ProgressPrint, "Sorting results", true);
 
-        let sorted_scan_output = scanner::sort_results(&scan_output, 100);
+        let sorted_scan_output = scanner::sort_results(&scan_output, args.scanoutputlenght);
 
         fancy_print(SuccessPrint, "Sort complete");
         fancy_print_full(ProgressPrint, "Contacting AI...", true);

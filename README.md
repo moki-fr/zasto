@@ -50,7 +50,7 @@ If no command is set, it will bring you to the help page.
 | `--model` | OR AI model | Sets a AI model in config files (default is google/gemma-4-26b-a4b-it) |
 | `--ignorelist` | File path | Sets a list where the scanning script won't check, only for this command |
 | `--path` | Directory path | Sets a path where you want the script to check, only for this command |
-| `--filelist` | Number (int) | Sets the number of file that will be given to the AI |
+| `--scanoutputlenght` | Number (int) | Sets the number of file that will be given to the AI |
 | `--json` | Output file path | Outputs the worth-deleting files in a JSON file instead of showing them in the TUI selector |
 | `--force` | None | Forces unsafe options (like overriding a JSON output file...) |
 | `--yes` | None | Skips y/n prompt |
