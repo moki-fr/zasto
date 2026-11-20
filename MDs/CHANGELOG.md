@@ -2,6 +2,19 @@
 
 ---
 
+### 0.2.1
+
+**Bug fixing**
+- Correcting most of unsafe and not working features on Windows
+
+**Notes**
+I always was testing on Linux but never tried it on Windows, turns out to be pretty glitchy! I fixed some issues such as:
+- Path being seprated at the ":" but not realizing Windows' file system writes paths as "C**:**/Users/..." which could litteraly say "delete my whole disk"
+- Root path being set as "/", which works on Linux but on Windows has to be "C:/"
+
+
+---
+
 ### 0.2.0
 
 **Features**

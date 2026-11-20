@@ -11,7 +11,7 @@ pub struct Args {
     #[arg(long)]
     pub storekey: Option<String>,
 
-    /// choose a model to save to the config file
+    /// choose a model to save to the config file>
     #[arg(short, long)]
     pub model: Option<String>,
 
@@ -51,5 +51,3 @@ pub fn parse_args() -> Args {
 pub fn get_args_number() -> usize {
     std::env::args().count() - 1
 }
-
-pub fn print_help() {}

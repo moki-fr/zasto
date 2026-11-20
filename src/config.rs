@@ -15,7 +15,7 @@ pub fn get_config_file() -> PathBuf {
     let home = if let Ok(user) = env::var("SUDO_USER") {
         PathBuf::from("/home").join(user)
     } else {
-        PathBuf::from(env::var("HOME").expect("HOME not found"))
+        get_home_dir()
     };
 
     let folder = Path::new(&home).join(".zasto");
@@ -28,7 +28,7 @@ pub fn check_config() -> bool {
     let home = if let Ok(user) = env::var("SUDO_USER") {
         PathBuf::from("/home").join(user)
     } else {
-        PathBuf::from(env::var("HOME").expect("HOME not found"))
+        get_home_dir()
     };
 
     let folder = Path::new(&home).join(".zasto");
@@ -69,4 +69,16 @@ pub fn change_toml_value(entry: String, value: String) {
     let updated_toml = toml::to_string_pretty(&config).expect("Failed to serialize config");
 
     fs::write(get_config_file(), updated_toml).expect("Failed to write config");
+}
+
+pub fn get_home_dir() -> PathBuf {
+    if let Some(home) = env::var_os("HOME") {
+        return PathBuf::from(home);
+    }
+
+    if let Some(profile) = env::var_os("USERPROFILE") {
+        return PathBuf::from(profile);
+    }
+
+    panic!("Unable to determine user home directory");
 }

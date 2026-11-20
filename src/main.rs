@@ -24,6 +24,7 @@ use std::path::Path;
 
 fn main() {
     // Args
+
     let args = cli::parse_args();
     let args_number = cli::get_args_number();
 
@@ -172,7 +173,17 @@ fn main() {
             path = arg_path.clone();
             fancy_print(SuccessPrint, &format!("Set focused path to {}", arg_path));
         }
-        None => path = "/".to_string(),
+        None => {
+            #[cfg(target_os = "windows")]
+            {
+                path = String::from(r"C:\");
+            }
+
+            #[cfg(not(target_os = "windows"))]
+            {
+                path = String::from("/");
+            }
+        }
     }
 
     // Json flag
@@ -330,7 +341,7 @@ fn main() {
         for line in path_list.lines() {
             let parts: Vec<&str> = line.split('|').collect();
 
-            displayed_path.push(format!("{}: {} ({})", parts[0], parts[1], parts[2]));
+            displayed_path.push(format!("{} | {} ({})", parts[0], parts[1], parts[2]));
         }
 
         print!("\x1B[2J\x1B[1;1H"); // clears term
@@ -365,7 +376,7 @@ fn main() {
 
         for line in selected_paths {
             let file_to_delete: String = line
-                .split(':') // get the first part aka path
+                .split(" | ") // get the first part aka path
                 .next()
                 .unwrap()
                 .trim()

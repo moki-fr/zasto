@@ -3,6 +3,8 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use std::env;
+
 pub fn scan(start_dir: &Path) -> HashMap<String, u64> {
     let default_ignore_list: [PathBuf; 8] = [
         PathBuf::from("C:/Windows/"),
