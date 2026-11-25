@@ -20,8 +20,10 @@ use std::{fs, process::*};
 mod scanner;
 
 use inquire::*; // select menus
+use serde_json::{Value, json};
 use std::path::Path;
-use serde_json::{json, Value};
+
+use std::io::{BufWriter, Write};
 
 fn main() {
     // Args
@@ -209,6 +211,7 @@ fn main() {
                     ErrorPrint,
                     "The selected output JSON path already exists, use --force to bypass",
                 );
+                exit(1);
             }
         }
         // try creating the complete path for the JSON output
@@ -229,7 +232,7 @@ fn main() {
         if !args.scan {
             fancy_print(
                 WarningPrint,
-                "The JSON flag is used without the scan flag, JSON outputting will not be stored in the config files",
+                "The JSON flag is used without the scan flag, JSON outputting option will not be stored in the config files",
             );
         }
     }
@@ -339,28 +342,34 @@ fn main() {
 
         // To do fix
         if json_string == "Yes" {
-            let content = fs::read_to_string(json);
+            let json_content: &str = "{}"; // JSON content with default empty curly braces
+            let mut data: Value = serde_json::from_str(json_content).unwrap(); // turn json_content into a JSON object
+            let mut buf = BufWriter::new(fs::File::create(json).unwrap()); // create buffer for writing the file
 
-            match content {
-                Ok(json_content) => {
-                    for line in path_list.lines() {
-                        let mut data: Value = serde_json::from_str(&json_content).unwrap();
-                        let parts: Vec<&str> = line.split('|').collect();
+            for line in path_list.lines() {
+                let parts: Vec<&str> = line.split('|').collect();
 
-                        data[parts[0]] = json!({
-                            "Description": parts[1],
-                            "Size": parts[2]
-                        })
-                    }
-                }
-
-                Err(_) => {
-                    fancy_print(ErrorPrint, "Could not get json file.");
-                }
+                data[parts[0].trim_matches('\"')] = json!({
+                    "description": &parts[1], // remove the '"' char, it doesnt look great in the output as JSON values are already between quotes
+                    "size": parts[2]
+                });
             }
 
-        } else {
+            fancy_print_full(ProgressPrint, "Writing JSON file...", true);
 
+            match writeln!(buf, "{}", serde_json::to_string(&data).unwrap()) {
+                Ok(_) => {
+                    fancy_print(SuccessPrint, "Wrote JSON file");
+                    buf.flush().unwrap(); // flush because if not it won't write into the file
+                    exit(0);
+                }
+                Err(e) => {
+                    fancy_print(ErrorPrint, "Error while writing JSON file");
+                    fancy_print(InfoPrint, &format!("Rust error: {}", e));
+                    exit(1);
+                }
+            }
+        } else {
             let mut displayed_path: Vec<String> = Vec::new(); // paths to be displayed in the selection menu
 
             for line in path_list.lines() {
@@ -433,6 +442,6 @@ fn main() {
                 }
                 print!("\n```");
             }
-        }  
+        }
     }
 }

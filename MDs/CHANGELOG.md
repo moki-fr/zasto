@@ -2,6 +2,18 @@
 
 ---
 
+### 0.3.0
+
+**Features**
+- JSON Outputting is now avaible
+
+**Notes**
+Zasto can now be used as a automated tool in other scripts! You don't need to select manually each path now, you can just implement it to your automations.
+The JSON output now works, I'm now working on the simple outputting with Zasto's format which is path|comment|size
+This will be useful for the GUI because we don't want a TUI selection menu, so the GUI will read from an output file.
+
+---
+
 ### 0.2.1
 
 **Bug fixing**
