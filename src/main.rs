@@ -21,6 +21,7 @@ mod scanner;
 
 use inquire::*; // select menus
 use std::path::Path;
+use serde_json::{json, Value};
 
 fn main() {
     // Args
@@ -336,77 +337,102 @@ fn main() {
             }
         }
 
-        let mut displayed_path: Vec<String> = Vec::new(); // paths to be displayed in the selection menu
+        // To do fix
+        if json_string == "Yes" {
+            let content = fs::read_to_string(json);
 
-        for line in path_list.lines() {
-            let parts: Vec<&str> = line.split('|').collect();
+            match content {
+                Ok(json_content) => {
+                    for line in path_list.lines() {
+                        let mut data: Value = serde_json::from_str(&json_content).unwrap();
+                        let parts: Vec<&str> = line.split('|').collect();
 
-            displayed_path.push(format!("{} | {} ({})", parts[0], parts[1], parts[2]));
-        }
+                        data[parts[0]] = json!({
+                            "Description": parts[1],
+                            "Size": parts[2]
+                        })
+                    }
+                }
 
-        print!("\x1B[2J\x1B[1;1H"); // clears term
-
-        let selected_paths: Vec<String>;
-
-        match MultiSelect::new("Select paths", displayed_path).prompt() {
-            Err(_) => {
-                fancy_print(ErrorPrint, "Error with selection menu");
-                exit(1);
-            }
-            Ok(v) => {
-                selected_paths = v;
-            }
-        }
-
-        if selected_paths.is_empty() {
-            fancy_print(SuccessPrint, "Nothing to delete");
-        }
-
-        let user_confirmation = fancy_input(&format!(
-            "Are you sure to delete these {} files ? (y/N): ",
-            selected_paths.iter().len()
-        ));
-
-        if user_confirmation.to_lowercase() != "y" {
-            fancy_print(InfoPrint, "Aborting");
-            exit(0);
-        }
-
-        let mut failed_deletions: Vec<String> = Vec::new();
-
-        for line in selected_paths {
-            let file_to_delete: String = line
-                .split(" | ") // get the first part aka path
-                .next()
-                .unwrap()
-                .trim()
-                .trim_matches('"') // remove quotes
-                .to_string();
-
-            fancy_print_full(ProgressPrint, &format!("Deleting {}", file_to_delete), true);
-
-            match fs::remove_file(&file_to_delete) {
                 Err(_) => {
-                    fancy_print(ErrorPrint, &format!("Failed to delete {}", file_to_delete));
-                    failed_deletions.push(file_to_delete);
-                }
-                Ok(_) => {
-                    fancy_print(SuccessPrint, &format!("Deleted {}", file_to_delete));
+                    fancy_print(ErrorPrint, "Could not get json file.");
                 }
             }
-        }
-        if !failed_deletions.is_empty() {
-            fancy_print(
-                InfoPrint,
-                "\nSome files couldn't be deleted, you can use this command to delete them all as root (on Linux for now)\n",
-            );
-            println!("```");
-            print!("sudo rm -f ");
 
-            for file in &failed_deletions {
-                print!("\"{}\" ", file);
+        } else {
+
+            let mut displayed_path: Vec<String> = Vec::new(); // paths to be displayed in the selection menu
+
+            for line in path_list.lines() {
+                let parts: Vec<&str> = line.split('|').collect();
+
+                displayed_path.push(format!("{} | {} ({})", parts[0], parts[1], parts[2]));
             }
-            print!("\n```");
-        }
+
+            print!("\x1B[2J\x1B[1;1H"); // clears term
+
+            let selected_paths: Vec<String>;
+
+            match MultiSelect::new("Select paths", displayed_path).prompt() {
+                Err(_) => {
+                    fancy_print(ErrorPrint, "Error with selection menu");
+                    exit(1);
+                }
+                Ok(v) => {
+                    selected_paths = v;
+                }
+            }
+
+            if selected_paths.is_empty() {
+                fancy_print(SuccessPrint, "Nothing to delete");
+            }
+
+            let user_confirmation = fancy_input(&format!(
+                "Are you sure to delete these {} files ? (y/N): ",
+                selected_paths.iter().len()
+            ));
+
+            if user_confirmation.to_lowercase() != "y" {
+                fancy_print(InfoPrint, "Aborting");
+                exit(0);
+            }
+
+            let mut failed_deletions: Vec<String> = Vec::new();
+
+            for line in selected_paths {
+                let file_to_delete: String = line
+                    .split(" | ") // get the first part aka path
+                    .next()
+                    .unwrap()
+                    .trim()
+                    .trim_matches('"') // remove quotes
+                    .to_string();
+
+                fancy_print_full(ProgressPrint, &format!("Deleting {}", file_to_delete), true);
+
+                match fs::remove_file(&file_to_delete) {
+                    Err(_) => {
+                        fancy_print(ErrorPrint, &format!("Failed to delete {}", file_to_delete));
+                        failed_deletions.push(file_to_delete);
+                    }
+                    Ok(_) => {
+                        fancy_print(SuccessPrint, &format!("Deleted {}", file_to_delete));
+                    }
+                }
+            }
+            if !failed_deletions.is_empty() {
+                fancy_print(
+                    InfoPrint,
+                    "\nSome files couldn't be deleted, you can use this command to delete them all as root (on Linux for now)\n",
+                );
+                println!("```");
+                print!("sudo rm -f ");
+
+                for file in &failed_deletions {
+                    print!("\"{}\" ", file);
+                }
+                print!("\n```");
+            }
+        }  
     }
 }
