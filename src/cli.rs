@@ -31,6 +31,10 @@ pub struct Args {
     #[arg(short, long)]
     pub json: Option<String>,
 
+    /// Outputs the worth-deleting files in a .zrs file (Zasto Raw Scan)
+    #[arg(short, long)]
+    pub output: Option<String>,
+
     /// Forces action that are not safe (like overwritting a  JSON file)
     #[arg(short, long)]
     pub force: bool,

@@ -1,5 +1,15 @@
 # Zasto's Changelog
 
+### 0.4.0
+
+**Features**
+- ZRS outputting is now avaible
+
+**Notes**
+You can now output .zrs (Zasto Raw Scan) file ! That looks like: path|comment|size
+That should be useful for our GUI later on.
+Use the --output flag to output as .zrs
+
 ---
 
 ### 0.3.0

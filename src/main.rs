@@ -54,7 +54,9 @@ fn main() {
     let mut ignore_list: String;
     let path: String;
     let mut json: String;
+    let mut zasto_output: String;
     let yes: bool;
+    let mut show_selection_menu: bool = true;
 
     // If no args
     if args_number == 0 {
@@ -197,7 +199,18 @@ fn main() {
     if let Some(arg_json) = args.json {
         json = arg_json.clone();
 
+        // this is to check .json at the end
+        let json_tail: String = json.to_lowercase().chars().rev().take(5).collect();
+        let json_tail: String = json_tail.chars().rev().collect();
+
+        // add .json if there's no json at the end
+        if json_tail != ".json" {
+            json.push_str(".json");
+        }
+
         json_string = "Yes";
+
+        show_selection_menu = false;
 
         if Path::new(&json).exists() {
             // if json path already exists
@@ -237,6 +250,64 @@ fn main() {
         }
     }
 
+    // Zasto outputting flag
+    let mut zasto_output_string = "No";
+    zasto_output = String::from("");
+
+    show_selection_menu = false;
+
+    if let Some(arg_output) = args.output {
+        zasto_output = arg_output.clone();
+
+        // this is to check .json at the end
+        let zasto_tail: String = zasto_output.to_lowercase().chars().rev().take(4).collect();
+        let zasto_tail: String = zasto_tail.chars().rev().collect();
+
+        // add .json if there's no .zrs at the end
+        if zasto_tail != ".zrs" {
+            zasto_output.push_str(".zrs");
+        }
+
+        zasto_output_string = "Yes";
+
+        if Path::new(&zasto_output).exists() {
+            // if json path already exists
+            if args.force {
+                fancy_print(
+                    WarningPrint,
+                    "Zasto output file already exists, overriding it",
+                );
+            } else {
+                fancy_print(
+                    ErrorPrint,
+                    "The selected output Zasto output path already exists, use --force to bypass",
+                );
+                exit(1);
+            }
+        }
+        // try creating the complete path for the JSON output
+        match fs::create_dir_all(Path::new(&zasto_output).parent().unwrap()) {
+            Err(e) => {
+                fancy_print(
+                    ErrorPrint,
+                    "Couln't create path through the Zasto output file",
+                );
+                fancy_print(InfoPrint, &format!("Rust error: {}", e));
+                exit(1);
+            }
+            Ok(_) => {
+                fancy_print(SuccessPrint, &format!("Outputting Zasto at {}", arg_output));
+            }
+        }
+
+        if !args.scan {
+            fancy_print(
+                WarningPrint,
+                "The Zasto output flag is used without the scan flag, Zasto outputting option will not be stored in the config files",
+            );
+        }
+    }
+
     // Scan
 
     if args.scan {
@@ -246,6 +317,7 @@ fn main() {
         println!("Ignorelist: {}", ignore_list);
         println!("Focused path: {}", path);
         println!("JSON: {}", json_string);
+        println!("Zasto outputting: {}", zasto_output_string);
 
         if !yes {
             let scan_confirmation: String = // Y/n user input
@@ -299,7 +371,6 @@ fn main() {
             exit(1);
         }
 
-        //let scan_output = scanner::scanner(Path::new(&path));
         let scan_output = scanner::scan(Path::new(&path));
 
         fancy_print(SuccessPrint, "Scan complete");
@@ -361,7 +432,6 @@ fn main() {
                 Ok(_) => {
                     fancy_print(SuccessPrint, "Wrote JSON file");
                     buf.flush().unwrap(); // flush because if not it won't write into the file
-                    exit(0);
                 }
                 Err(e) => {
                     fancy_print(ErrorPrint, "Error while writing JSON file");
@@ -369,79 +439,101 @@ fn main() {
                     exit(1);
                 }
             }
-        } else {
-            let mut displayed_path: Vec<String> = Vec::new(); // paths to be displayed in the selection menu
+        }
 
-            for line in path_list.lines() {
-                let parts: Vec<&str> = line.split('|').collect();
+        if zasto_output_string == "Yes" {
+            let mut buf = BufWriter::new(fs::File::create(&zasto_output).unwrap()); // create buffer for writing the file
 
-                displayed_path.push(format!("{} | {} ({})", parts[0], parts[1], parts[2]));
-            }
+            fancy_print_full(ProgressPrint, "Writing Zasto output file...", true);
 
-            print!("\x1B[2J\x1B[1;1H"); // clears term
-
-            let selected_paths: Vec<String>;
-
-            match MultiSelect::new("Select paths", displayed_path).prompt() {
-                Err(_) => {
-                    fancy_print(ErrorPrint, "Error with selection menu");
+            match writeln!(buf, "{}", path_list) {
+                Ok(_) => {
+                    fancy_print(SuccessPrint, "Wrote Zasto output file");
+                    buf.flush().unwrap(); // flush because if not it won't write into the file
+                }
+                Err(e) => {
+                    fancy_print(ErrorPrint, "Error while writing Zasto output file");
+                    fancy_print(InfoPrint, &format!("Rust error: {}", e));
                     exit(1);
                 }
-                Ok(v) => {
-                    selected_paths = v;
+            }
+        }
+
+        // dont show TUI selection
+        if !show_selection_menu {
+            exit(0);
+        }
+        let mut displayed_path: Vec<String> = Vec::new(); // paths to be displayed in the selection menu
+
+        for line in path_list.lines() {
+            let parts: Vec<&str> = line.split('|').collect();
+
+            displayed_path.push(format!("{} | {} ({})", parts[0], parts[1], parts[2]));
+        }
+
+        print!("\x1B[2J\x1B[1;1H"); // clears term
+
+        let selected_paths: Vec<String>;
+
+        match MultiSelect::new("Select paths", displayed_path).prompt() {
+            Err(_) => {
+                fancy_print(ErrorPrint, "Error with selection menu");
+                exit(1);
+            }
+            Ok(v) => {
+                selected_paths = v;
+            }
+        }
+
+        if selected_paths.is_empty() {
+            fancy_print(SuccessPrint, "Nothing to delete");
+        }
+
+        let user_confirmation = fancy_input(&format!(
+            "Are you sure to delete these {} files ? (y/N): ",
+            selected_paths.iter().len()
+        ));
+
+        if user_confirmation.to_lowercase() != "y" {
+            fancy_print(InfoPrint, "Aborting");
+            exit(0);
+        }
+
+        let mut failed_deletions: Vec<String> = Vec::new();
+
+        for line in selected_paths {
+            let file_to_delete: String = line
+                .split(" | ") // get the first part aka path
+                .next()
+                .unwrap()
+                .trim()
+                .trim_matches('"') // remove quotes
+                .to_string();
+
+            fancy_print_full(ProgressPrint, &format!("Deleting {}", file_to_delete), true);
+
+            match fs::remove_file(&file_to_delete) {
+                Err(_) => {
+                    fancy_print(ErrorPrint, &format!("Failed to delete {}", file_to_delete));
+                    failed_deletions.push(file_to_delete);
+                }
+                Ok(_) => {
+                    fancy_print(SuccessPrint, &format!("Deleted {}", file_to_delete));
                 }
             }
+        }
+        if !failed_deletions.is_empty() {
+            fancy_print(
+                InfoPrint,
+                "\nSome files couldn't be deleted, you can use this command to delete them all as root (on Linux for now)\n",
+            );
+            println!("```");
+            print!("sudo rm -f ");
 
-            if selected_paths.is_empty() {
-                fancy_print(SuccessPrint, "Nothing to delete");
+            for file in &failed_deletions {
+                print!("\"{}\" ", file);
             }
-
-            let user_confirmation = fancy_input(&format!(
-                "Are you sure to delete these {} files ? (y/N): ",
-                selected_paths.iter().len()
-            ));
-
-            if user_confirmation.to_lowercase() != "y" {
-                fancy_print(InfoPrint, "Aborting");
-                exit(0);
-            }
-
-            let mut failed_deletions: Vec<String> = Vec::new();
-
-            for line in selected_paths {
-                let file_to_delete: String = line
-                    .split(" | ") // get the first part aka path
-                    .next()
-                    .unwrap()
-                    .trim()
-                    .trim_matches('"') // remove quotes
-                    .to_string();
-
-                fancy_print_full(ProgressPrint, &format!("Deleting {}", file_to_delete), true);
-
-                match fs::remove_file(&file_to_delete) {
-                    Err(_) => {
-                        fancy_print(ErrorPrint, &format!("Failed to delete {}", file_to_delete));
-                        failed_deletions.push(file_to_delete);
-                    }
-                    Ok(_) => {
-                        fancy_print(SuccessPrint, &format!("Deleted {}", file_to_delete));
-                    }
-                }
-            }
-            if !failed_deletions.is_empty() {
-                fancy_print(
-                    InfoPrint,
-                    "\nSome files couldn't be deleted, you can use this command to delete them all as root (on Linux for now)\n",
-                );
-                println!("```");
-                print!("sudo rm -f ");
-
-                for file in &failed_deletions {
-                    print!("\"{}\" ", file);
-                }
-                print!("\n```");
-            }
+            print!("\n```");
         }
     }
 }

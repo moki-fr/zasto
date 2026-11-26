@@ -51,7 +51,8 @@ If no command is set, it will bring you to the help page.
 | `--ignorelist` | File path | Sets a list where the scanning script won't check, only for this command |
 | `--path` | Directory path | Sets a path where you want the script to check, only for this command |
 | `--scanoutputlenght` | Number (int) | Sets the number of file that will be given to the AI |
-| `--json` | Output file path | Outputs the worth-deleting files in a JSON file instead of showing them in the TUI selector |
+| `--json` | JSON Output file path | Outputs the worth-deleting files in a JSON file instead of showing them in the TUI selector |
+| `--output` | zrs output file path | Outputs the worth-deleting files in a .zrs file (Zasto Raw Scan) instead of showing them in the TUI selector |
 | `--force` | None | Forces unsafe options (like overriding a JSON output file...) |
 | `--yes` | None | Skips y/n prompt |
 | `--scan` | None | Starts scanning |
