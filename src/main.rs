@@ -21,7 +21,7 @@ mod scanner;
 
 use inquire::*; // select menus
 use serde_json::{Value, json};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use std::io::{BufWriter, Write};
 
@@ -51,12 +51,12 @@ fn main() {
     // Vars used by the scanning function
     let mut key: String;
     let model: String;
-    let mut ignore_list: String;
     let path: String;
     let mut json: String;
     let mut zasto_output: String;
     let yes: bool;
     let mut show_selection_menu: bool = true;
+    let mut ignore_list: Vec<PathBuf> = Vec::new();
 
     // If no args
     if args_number == 0 {
@@ -157,21 +157,6 @@ fn main() {
 
     model = zasto_config.model;
 
-    ignore_list = String::from("");
-
-    // ignorelist flag
-    if let Some(arg_ignorelist) = args.ignorelist {
-        ignore_list = arg_ignorelist.clone();
-        fancy_print(SuccessPrint, &format!("Set ignorelist {}", arg_ignorelist));
-
-        if !args.scan {
-            fancy_print(
-                WarningPrint,
-                "The ignorelist flag is used without the scan flag, the ignorelist will not be stored in the config files",
-            );
-        }
-    }
-
     // path flag
     match args.path {
         Some(arg_path) => {
@@ -254,9 +239,8 @@ fn main() {
     let mut zasto_output_string = "No";
     zasto_output = String::from("");
 
-    show_selection_menu = false;
-
     if let Some(arg_output) = args.output {
+        show_selection_menu = false; // cancel displaying the selection menu
         zasto_output = arg_output.clone();
 
         // this is to check .json at the end
@@ -308,13 +292,32 @@ fn main() {
         }
     }
 
-    // Scan
+    // Ignore flag
+    if !args.ignore.is_empty() {
+        // Turning String path into PathBuf and storing them into the ignorelist Vec
+        for ignored_path in &args.ignore {
+            ignore_list.push(PathBuf::from(ignored_path));
+        }
 
+        fancy_print(
+            SuccessPrint,
+            &format!("Ignoring {} paths", args.ignore.len()),
+        );
+
+        if !args.scan {
+            fancy_print(
+                WarningPrint,
+                "The ignore flag is used without the scan flag, the ignore option will not be stored in the config files",
+            );
+        }
+    }
+
+    // Scan
     if args.scan {
         print_zasto_logo();
+        println!("{}", show_selection_menu);
         println!("Key: {}", key_string);
         println!("Model: {}", model);
-        println!("Ignorelist: {}", ignore_list);
         println!("Focused path: {}", path);
         println!("JSON: {}", json_string);
         println!("Zasto outputting: {}", zasto_output_string);
@@ -371,7 +374,7 @@ fn main() {
             exit(1);
         }
 
-        let scan_output = scanner::scan(Path::new(&path));
+        let scan_output = scanner::scan(Path::new(&path), ignore_list);
 
         fancy_print(SuccessPrint, "Scan complete");
 

@@ -1,5 +1,18 @@
 # Zasto's Changelog
 
+### 0.5.0
+
+**Features**
+- ignore flag
+
+**Bug fixing**
+- TUI selection menu not showing at all even without --output or --json 
+
+**Notes**
+With the --ignore (or -i) flag you can now tell the scanner not to check your super secret files 👀
+
+---
+
 ### 0.4.0
 
 **Features**

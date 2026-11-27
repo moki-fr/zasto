@@ -15,9 +15,9 @@ pub struct Args {
     #[arg(short, long)]
     pub model: Option<String>,
 
-    /// Number of times to greet
-    #[arg(short, long)]
-    pub ignorelist: Option<String>,
+    /// Tells the scanner to not scan this path (can be specified multiple times)
+    #[arg(short, long, action = clap::ArgAction::Append)]
+    pub ignore: Vec<String>,
 
     /// Focus a path to scan
     #[arg(short, long)]

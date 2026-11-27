@@ -48,7 +48,7 @@ If no command is set, it will bring you to the help page.
 | `--key`   | OR API key    | Sets a OpenRouter API key, only for this command    |
 | `--storekey` | OR API key | Sets a OpenRouter API key, and stores it in config files |
 | `--model` | OR AI model | Sets a AI model in config files (default is google/gemma-4-26b-a4b-it) |
-| `--ignorelist` | File path | Sets a list where the scanning script won't check, only for this command |
+| `--ignore` | Directory path | Makes the scanner ignore this path entierly, can be used more than once |
 | `--path` | Directory path | Sets a path where you want the script to check, only for this command |
 | `--scanoutputlenght` | Number (int) | Sets the number of file that will be given to the AI |
 | `--json` | JSON Output file path | Outputs the worth-deleting files in a JSON file instead of showing them in the TUI selector |

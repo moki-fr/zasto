@@ -3,9 +3,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use std::env;
-
-pub fn scan(start_dir: &Path) -> HashMap<String, u64> {
+pub fn scan(start_dir: &Path, ignorelist_arg: Vec<PathBuf>) -> HashMap<String, u64> {
     let default_ignore_list: [PathBuf; 8] = [
         PathBuf::from("C:/Windows/"),
         PathBuf::from("/proc/"),
@@ -27,7 +25,16 @@ pub fn scan(start_dir: &Path) -> HashMap<String, u64> {
 
         let path = entry.path();
 
+        // check default banned paths
         if default_ignore_list
+            .iter()
+            .any(|ignored| path.starts_with(ignored))
+        {
+            continue;
+        }
+
+        // check ignored paths
+        if ignorelist_arg
             .iter()
             .any(|ignored| path.starts_with(ignored))
         {
